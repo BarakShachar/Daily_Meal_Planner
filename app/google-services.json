@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "522518651907",
+    "project_id": "daily-meals-planner",
+    "storage_bucket": "daily-meals-planner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522518651907:android:a76807395584815e805a36",
+        "android_client_info": {
+          "package_name": "com.example.calories_calculator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "522518651907-n95kh00ov42l7egfpkj54hspicq05ihm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAh6CXjZVaENy52pHP7lV1JmVUTHhgMpR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "522518651907-n95kh00ov42l7egfpkj54hspicq05ihm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522518651907:android:ccfd73f6b79427dc805a36",
+        "android_client_info": {
+          "package_name": "com.example.dailymealplanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "522518651907-n95kh00ov42l7egfpkj54hspicq05ihm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAh6CXjZVaENy52pHP7lV1JmVUTHhgMpR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "522518651907-n95kh00ov42l7egfpkj54hspicq05ihm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
