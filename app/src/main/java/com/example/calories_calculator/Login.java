@@ -90,6 +90,7 @@ public class Login extends AppCompatActivity {
     }
 
     public void connect() {
+        //we need to add a check if the user is admin or not. after that we will send him to the right screen//
         Intent in = new Intent(Login.this, UserMainScreen.class);
         startActivity(in);
     }
