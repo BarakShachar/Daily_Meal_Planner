@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Users"
+        android:icon="@drawable/ic_users"
+        android:id="@+id/admin_users"
+        />
+    <item android:title="Edit suggestions"
+        android:icon="@drawable/ic_edit"
+        android:id="@+id/admin_edit"/>
+</menu>
