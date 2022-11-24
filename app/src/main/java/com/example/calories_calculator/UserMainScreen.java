@@ -3,6 +3,7 @@ package com.example.calories_calculator;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -22,19 +23,22 @@ public class UserMainScreen extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
         // replace the main screen to the home screen while connecting to the page.
-        getSupportFragmentManager().beginTransaction().replace(R.id.user_frame,userHome).commit();
+        bottomNavigationView.setSelectedItemId(R.id.user_home);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.user_frame, userHome).commit();
+                        startActivity(new Intent(getApplicationContext(),UserHome.class));
+                        overridePendingTransition(0,0);
                         return true;
                     case R.id.user_search:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.user_frame, userSearch).commit();
+                        startActivity(new Intent(getApplicationContext(),UserSearch.class));
+                        overridePendingTransition(0,0);
                         return true;
                     case R.id.user_suggestions:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.user_frame, userSuggestions).commit();
+                        startActivity(new Intent(getApplicationContext(),UserSuggestions.class));
+                        overridePendingTransition(0,0);
                         return true;
                 }
                 return false;
