@@ -34,6 +34,20 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".UserSuggestions"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".UserSearch"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".UserMainScreen"
             android:exported="true">
             <meta-data
