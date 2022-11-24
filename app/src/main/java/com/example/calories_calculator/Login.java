@@ -57,8 +57,6 @@ public class Login extends AppCompatActivity {
                 changeInProgress(false);
                 if (task.isSuccessful()) { //login is successful
                     Toast.makeText(Login.this, "login successfully!", Toast.LENGTH_SHORT).show();
-
-                    //login_button.setOnClickListener((v) -> startActivity(new Intent(Login.this, UserMainScreen.class)));
                     connect();
                 } else {
                     Toast.makeText(Login.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
@@ -92,7 +90,7 @@ public class Login extends AppCompatActivity {
     }
 
     public void connect() {
-        Intent in = new Intent(this, UserMainScreen.class);
+        Intent in = new Intent(Login.this, UserMainScreen.class);
         startActivity(in);
     }
 }
