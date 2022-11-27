@@ -24,15 +24,16 @@ public class Login extends AppCompatActivity {
     Button login_button;
     ProgressBar loginProgressBar;
     FirebaseFirestore database;
+    Create_user user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        emailEditText = (TextView) findViewById(R.id.Username);
-        passwordEditText = (TextView) findViewById(R.id.Password);
-        login_button = (Button) findViewById(R.id.Login_button);
-        signInBtnEditText = (TextView) findViewById(R.id.Sign_in);
+        emailEditText = findViewById(R.id.Username);
+        passwordEditText = findViewById(R.id.Password);
+        login_button = findViewById(R.id.Login_button);
+        signInBtnEditText = findViewById(R.id.Sign_in);
         loginProgressBar = findViewById(R.id.progressBarLogin);
 
         login_button.setOnClickListener((v) -> loginUser());
@@ -60,6 +61,8 @@ public class Login extends AppCompatActivity {
                 changeInProgress(false);
                 if (task.isSuccessful()) { //login is successful
                     Toast.makeText(Login.this, "login successfully!", Toast.LENGTH_SHORT).show();
+                    // this is where we need to get the user value from the database by his email address
+                    // after we got his value, we can check if he's a user or admin
                     Create_user user = new Create_user();
                     connect(user);
                 } else {
@@ -96,9 +99,10 @@ public class Login extends AppCompatActivity {
     public void connect(Create_user user) {
         //we need to add a check if the user is admin or not. after that we will send him to the right screen//
         Intent in;
-        if (!user.isAdmin) {
+        if (user.isAdmin) {
+            // if isAdmin is true - it means that we need to send him to the admin's pages.
             in = new Intent(Login.this, AdminMainScreen.class);
-        } else {
+        } else {  // if isAdmin is false - it means that we need to send him to the user's pages.
             in = new Intent(Login.this, UserMainScreen.class);
         }
         startActivity(in);
