@@ -1,8 +1,8 @@
 package com.example.calories_calculator;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -16,11 +16,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.auth.User;
 
 public class Login extends AppCompatActivity {
     TextView emailEditText, passwordEditText, signInBtnEditText;
     Button login_button;
     ProgressBar loginProgressBar;
+    FirebaseFirestore database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +34,6 @@ public class Login extends AppCompatActivity {
         login_button = (Button) findViewById(R.id.Login_button);
         signInBtnEditText = (TextView) findViewById(R.id.Sign_in);
         loginProgressBar = findViewById(R.id.progressBarLogin);
-
 
         login_button.setOnClickListener((v) -> loginUser());
         signInBtnEditText.setOnClickListener((v) -> startActivity(new Intent(Login.this, Register.class)));
@@ -52,12 +54,14 @@ public class Login extends AppCompatActivity {
         changeInProgress(true);
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 changeInProgress(false);
                 if (task.isSuccessful()) { //login is successful
                     Toast.makeText(Login.this, "login successfully!", Toast.LENGTH_SHORT).show();
-                    connect();
+                    Create_user user = new Create_user();
+                    connect(user);
                 } else {
                     Toast.makeText(Login.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -89,9 +93,14 @@ public class Login extends AppCompatActivity {
         return true;
     }
 
-    public void connect() {
+    public void connect(Create_user user) {
         //we need to add a check if the user is admin or not. after that we will send him to the right screen//
-        Intent in = new Intent(Login.this, UserMainScreen.class);
+        Intent in;
+        if (!user.isAdmin) {
+            in = new Intent(Login.this, AdminMainScreen.class);
+        } else {
+            in = new Intent(Login.this, UserMainScreen.class);
+        }
         startActivity(in);
     }
 }

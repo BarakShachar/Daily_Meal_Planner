@@ -2,6 +2,7 @@ package com.example.calories_calculator;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -10,8 +11,6 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class AdminMainScreen extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
-    AdminHome adminHome = new AdminHome();
-    AdminEdit adminEdit= new AdminEdit();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,23 +19,21 @@ public class AdminMainScreen extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.AdminBottomNavigation);
 
-        // replace the main screen to the home screen while connecting to the page.
-        getSupportFragmentManager().beginTransaction().replace(R.id.user_frame,adminHome).commit();
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                switch(item.getItemId()) {
+                switch (item.getItemId()) {
                     case R.id.admin_users:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.user_frame, adminHome).commit();
+                        startActivity(new Intent(getApplicationContext(), AdminMainScreen.class));
+                        overridePendingTransition(0, 0);
                         return true;
                     case R.id.admin_edit:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.user_frame, adminEdit).commit();
+                        startActivity(new Intent(getApplicationContext(), AdminEdit.class));
+                        overridePendingTransition(0, 0);
                         return true;
                 }
                 return false;
             }
         });
-
-
     }
 }

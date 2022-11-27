@@ -22,6 +22,7 @@ public class Register extends AppCompatActivity {
             birthdayEditText, heightEditText, weightEditText;
     Button register_button;
     ProgressBar progressBar;
+    Create_user user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +80,7 @@ public class Register extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 changeInProgress(false);
                 if(task.isSuccessful()){ //creating account is done
-                  Toast.makeText(Register.this, "Account created successfully! Check email to verify", Toast.LENGTH_SHORT).show();
-                  firebaseAuth.getCurrentUser().sendEmailVerification();
+                  Toast.makeText(Register.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
                   firebaseAuth.signOut();
                   main_screen();
               } else{ // failure while creating the account

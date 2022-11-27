@@ -17,26 +17,21 @@ import android.widget.TextView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-
 public class UserSearch extends AppCompatActivity {
-    TextView emailEditText, passwordEditText, signInBtnEditText;
-    Button login_button;
-    ProgressBar loginProgressBar;
     BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_user_suggestions);
+        setContentView(R.layout.fragment_user_search);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
-        // replace the main screen to the home screen while connecting to the page.
-        bottomNavigationView.setSelectedItemId(R.id.user_home);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        startActivity(new Intent(getApplicationContext(),UserHome.class));
+                        startActivity(new Intent(getApplicationContext(),UserMainScreen.class));
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.user_search:
@@ -51,7 +46,5 @@ public class UserSearch extends AppCompatActivity {
                 return false;
             }
         });
-
-
     }
 }
