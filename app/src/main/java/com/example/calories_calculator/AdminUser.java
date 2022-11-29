@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AdminUser extends User {
-    private HashMap<String, HashMap<String, HashMap<String,Integer>>> suggestions;
+    private String[] users;
+    private HashMap<String, Object> suggestions;
 
     public AdminUser(){
     }
@@ -18,10 +19,11 @@ public class AdminUser extends User {
             this.weight = (Integer) user_data.get("weight");
         }
         this.isAdmin = true;
-        this.suggestions = (HashMap<String, HashMap<String, HashMap<String, Integer>>>) user_data.get("menus");
+        this.suggestions = (HashMap<String, Object>) user_data.get("suggestions");
+        this.users = (String[]) user_data.get("users");
     }
 
-    public HashMap<String, HashMap<String, HashMap<String, Integer>>> getSuggestions() {
+    public HashMap<String, Object> getSuggestions() {
         return suggestions;
     }
 }
