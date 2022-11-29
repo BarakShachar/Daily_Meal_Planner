@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/Register_username"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
         android:background="@android:drawable/editbox_background_normal"
@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/Register_email"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
         android:background="@android:drawable/editbox_background_normal"
@@ -67,34 +67,18 @@
 
 
     <EditText
-        android:id="@+id/Register_birthday"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="date"
-        android:layout_below="@id/Register_password"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="5dp"
-        android:background="@android:drawable/editbox_background_normal"
-        android:ems="20"
-        android:hint="Birthday"
-        android:padding="20dp"
-        android:singleLine="true" />
-
-    <EditText
         android:id="@+id/Register_height"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
         android:layout_below="@id/Register_birthday"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
         android:background="@android:drawable/editbox_background_normal"
         android:ems="20"
         android:hint="Height"
+        android:inputType="number"
         android:padding="20dp"
         android:singleLine="true" />
     />
@@ -103,17 +87,36 @@
         android:id="@+id/Register_weight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
         android:layout_below="@id/Register_height"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
         android:background="@android:drawable/editbox_background_normal"
         android:ems="20"
         android:hint="Weight"
+        android:inputType="number"
         android:padding="20dp"
         android:singleLine="true" />
+
+
+    <EditText
+        android:id="@+id/Register_birthday"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Register_password"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@android:drawable/editbox_background_normal"
+        android:ems="20"
+        android:hint="Birthday"
+        android:inputType="date"
+        android:padding="20dp"
+        android:singleLine="true" />
+
+
 
     <Button
         android:id="@+id/Register_button"
@@ -140,7 +143,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/Register_weight"
-        android:layout_margin="15dp"
-        android:visibility="invisible"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp"
+        android:visibility="invisible" />
+
 </RelativeLayout>

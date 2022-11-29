@@ -86,7 +86,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/Sign_in"
+        android:id="@+id/Sign_up"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/Login_button"
@@ -105,10 +105,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/Password"
-        android:layout_margin="10dp"
-        android:visibility="invisible"
         android:layout_centerHorizontal="true"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </RelativeLayout>

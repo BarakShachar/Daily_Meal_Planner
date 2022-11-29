@@ -1,7 +1,5 @@
 package com.example.calories_calculator;
 
-import static android.content.ContentValues.TAG;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,12 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Register extends AppCompatActivity {
+
     EditText usernameEditText, emailEditText, passwordEditText,
             birthdayEditText, heightEditText, weightEditText;
     Button register_button;
     ProgressBar progressBar;
-    Create_user user;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,36 +50,50 @@ public class Register extends AppCompatActivity {
         String username = usernameEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
-//        int height = Integer.parseInt(heightEditText.getText().toString());
-//        int weight = Integer.parseInt(weightEditText.getText().toString());
+        int height = 0;
+        int weight = 0;
+        if (!heightEditText.getText().toString().equals("")){
+            height = Integer.parseInt(heightEditText.getText().toString());
+        }
+        if (!weightEditText.getText().toString().equals("")){
+            weight = Integer.parseInt(weightEditText.getText().toString());
+        }
 
-        boolean isValid = validateData(username,email, password);
+        boolean isValid = validateData(username, email, password, height, weight);
         if(!isValid){ return;}
 
-        createAccountInFirebase(username, email,password);
+        createAccountInFirebase(username, email, password, height, weight);
 
 
     }
-      boolean validateData(String username, String email, String password){
+      boolean validateData(String username, String email, String password, int height, int weight){
         // validate the data we got from the user.
-
+          boolean valid_data = true;
           if(username.isEmpty()){
               usernameEditText.setError("UserName is invalid");
-              return false;
+              valid_data = false;
           }
 
           if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
               emailEditText.setError("Email is invalid");
-              return false;
+              valid_data = false;
           }
           if(password.length()<6){
               passwordEditText.setError("Password length is invalid");
-              return false;
+              valid_data = false;
           }
-          return true;
+          if (height <= 0){
+              heightEditText.setError("invalid height");
+              valid_data = false;
+          }
+          if (weight <= 0){
+              weightEditText.setError("invalid weight");
+              valid_data = false;
+          }
+          return valid_data;
     }
 
-    void createAccountInFirebase(String username, String email, String password){
+    void createAccountInFirebase(String username, String email, String password, int height, int weight){
         changeInProgress(true);
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(Register.this, new OnCompleteListener<AuthResult>() {
@@ -91,7 +102,7 @@ public class Register extends AppCompatActivity {
                 changeInProgress(false);
                 if(task.isSuccessful()){ //creating account is done
                   firebaseAuth.signOut();
-                  createAccountInFirebaseDB(username, email);
+                  createAccountInFirebaseDB(username, email, height, weight);
                   Toast.makeText(Register.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
                   main_screen();
               } else{ // failure while creating the account
@@ -101,9 +112,12 @@ public class Register extends AppCompatActivity {
         });
     }
 
-    void createAccountInFirebaseDB(String username, String email){
+    void createAccountInFirebaseDB(String username, String email, int height, int weight){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> user = new HashMap<>();
         user.put("name", username);
+        user.put("height", height);
+        user.put("weight", weight);
         user.put("is_admin", false);
         user.put("admin_mail", null);
         user.put("menus", new HashMap<>());
@@ -136,5 +150,6 @@ public class Register extends AppCompatActivity {
     public void main_screen() {
         Intent intent = new Intent(this, Login.class);
         startActivity(intent);
+        finish();
     }
 }
