@@ -65,6 +65,7 @@ public class Login extends AppCompatActivity {
                     // after we got his value, we can check if he's a user or admin
                     Create_user user = new Create_user();
                     connect(user);
+                    finish();
                 } else {
                     Toast.makeText(Login.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }

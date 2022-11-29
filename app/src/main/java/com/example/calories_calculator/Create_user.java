@@ -1,6 +1,7 @@
 package com.example.calories_calculator;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Create_user {
     private String name;
@@ -16,11 +17,23 @@ public class Create_user {
     public Create_user(String name, String email, String password, int height, int weight) {
         this.name = name;
         this.email = email;
-        this.password = password;
         this.height = height;
         this.weight = weight;
         this.isAdmin = false;
         this.menus = new HashMap<>();
+    }
+
+    public void set_user(Map<String, Object> user_data){
+        System.out.println(user_data);
+        this.name = (String) user_data.get("name");
+        if (user_data.containsKey("height") && user_data.get("height")!= null) {
+            this.height = (Integer) user_data.get("height");
+        }
+        if (user_data.containsKey("weight") && user_data.get("weight")!= null) {
+            this.weight = (Integer) user_data.get("weight");
+        }
+        this.isAdmin = (Boolean) user_data.get("is_admin");
+        this.menus = (HashMap<String, HashMap<String, HashMap<String, Integer>>>) user_data.get("menus");
     }
 
     public String getName() {
@@ -37,14 +50,6 @@ public class Create_user {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public int getHeight() {
