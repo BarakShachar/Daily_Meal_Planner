@@ -62,13 +62,13 @@ public class Login extends AppCompatActivity {
             @SuppressLint("RestrictedApi")
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                changeInProgress(false);
                 if (task.isSuccessful()) { //login is successful
                     Toast.makeText(Login.this, "login successfully!", Toast.LENGTH_SHORT).show();
                     // this is where we need to get the user value from the database by his email address
                     // after we got his value, we can check if he's a user or admin
                     getUserData(email);
                 } else {
+                    changeInProgress(false);
                     Toast.makeText(Login.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -95,16 +95,7 @@ public class Login extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
-                        if (!((Boolean) document.getData().get("is_admin"))){
-                            RegularUser user = new RegularUser();
-                            user.set_user(document.getData());
-                            connect(user);
-                        }
-                        else{
-                            AdminUser user = new AdminUser();
-                            user.set_admin(document.getData());
-                            connect(user);
-                        }
+                        connect((Boolean) document.getData().get("is_admin"));
                     } else {
                         Log.d("main_activity", "No such document");
                     }
@@ -129,16 +120,16 @@ public class Login extends AppCompatActivity {
         return true;
     }
 
-    public void connect(User user) {
+    public void connect(Boolean is_admin) {
         //we need to add a check if the user is admin or not. after that we will send him to the right screen//
         Intent in;
-        if (user.isAdmin) {
+        if (is_admin) {
             // if isAdmin is true - it means that we need to send him to the admin's pages.
             in = new Intent(Login.this, AdminMainScreen.class);
         } else {  // if isAdmin is false - it means that we need to send him to the user's pages.
             in = new Intent(Login.this, UserMainScreen.class);
         }
-        in.putExtra("user_data", user);
+        changeInProgress(false);
         startActivity(in);
         finish();
     }

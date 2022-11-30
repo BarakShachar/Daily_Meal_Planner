@@ -1,16 +1,14 @@
 package com.example.calories_calculator;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableContainer;
-import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -18,26 +16,36 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.Map;
 
 public class UserMainScreen extends AppCompatActivity {
-    BottomNavigationView bottomNavigationView;
+    BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
+    FloatingActionButton addNewMenu = findViewById(R.id.addNewMenu);
     TextView hello;
     ProgressBar bar;
     TableLayout table;
+    Map<String, Object> user_data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent my_intent = getIntent();
-        User user = (User) my_intent.getSerializableExtra("user_data");
         setContentView(R.layout.activity_user_main_screen);
-        bottomNavigationView = findViewById(R.id.bottomNavigation);
-
+//        bottomNavigationView = findViewById(R.id.bottomNavigation);
+        addNewMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: add
+            }
+        });
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
@@ -58,55 +66,32 @@ public class UserMainScreen extends AppCompatActivity {
                 return false;
             }
         });
-
-        hello = (TextView) findViewById(R.id.Hello);
-        bar = (ProgressBar) findViewById(R.id.Bar);
-//        String name = "Hello "+ user.getName();
-//            hello.setText(name);
-        List<String> list=new ArrayList<String>();
-        //Adding elements in the List
-            list.add("Mango");
-            list.add("Apple");
-            list.add("Banana");
-            list.add("Grapes");
-            list.add("Mango");
-            list.add("Apple");
-            list.add("Banana");
-            list.add("Grapes");
-            list.add("Mango");
-            list.add("Apple");
-            list.add("Banana");
-            list.add("Grapes");
-            list.add("Mango");
-            list.add("Apple");
-            list.add("Banana");
-            list.add("Grapes");
-            list.add("Mango");
-            list.add("Apple");
-            list.add("Banana");
-            list.add("Grapes");
-            list.add("Mango");
-            list.add("Apple");
-            list.add("Banana");
-            list.add("Grapes");
-            list.add("Mango");
-            list.add("Apple");
-            list.add("Banana");
-            list.add("Grapes");
-        addMenus(list);
+        String user_mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        getUserData(user_mail);
     }
 
-    void addMenus(List<String> menus){
-        int amount = menus.size();
+    void mainFunction(){
+        hello = findViewById(R.id.Hello);
+        bar = findViewById(R.id.Bar);
+        String hello_name = "Hello "+ user_data.get("name");
+        hello.setText(hello_name);
+        if (((Map<String, Object>)user_data.get("menus")).size() > 0) {
+            addMenus((Map<String, Object>)user_data.get("menus"));
+        }
+    }
+
+    void addMenus(Map<String, Object> user_menus_data){
         table = (TableLayout) findViewById(R.id.Table);
-        for(int i =0; i<amount; i++){
+        for (Map.Entry<String,Object> entry : user_menus_data.entrySet()){
             TableRow row = new TableRow(this);
             table.addView(row);
             Button menu = new Button(this);
-            menu.setText(menus.get(i));
-            menu.setId(i);
+            menu.setTag(entry.getKey());
+            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
+            String menu_text = entry.getKey() + " (total calories: " + Long.toString(total_cals) + ")";
+            menu.setText(menu_text);
             menu.setGravity(Gravity.CENTER);
-            menu.setTextSize(25);
+            menu.setTextSize(15);
             menu.setHeight(30);
             menu.setWidth(900);
             ImageButton delete= new ImageButton(this);
@@ -133,7 +118,32 @@ public class UserMainScreen extends AppCompatActivity {
                     System.out.println("v.getid is:- " + v.getId());
                 }
             });
-
         }
+    }
+
+    void getUserData(String mail){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("users").document(mail);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                        user_data = document.getData();
+                        mainFunction();
+                    } else {
+                        Log.d("main_activity", "No such document");
+                    }
+                } else {
+                    Log.d("main_activity", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    void remove_menu(String menu_name){
+
     }
 }
