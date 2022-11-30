@@ -17,6 +17,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -25,25 +27,33 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.HashMap;
 import java.util.Map;
 
 public class UserMainScreen extends AppCompatActivity {
-    BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
-    FloatingActionButton addNewMenu = findViewById(R.id.addNewMenu);
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    BottomNavigationView bottomNavigationView;
+    FloatingActionButton addNewMenu;
     TextView hello;
     ProgressBar bar;
     TableLayout table;
-    Map<String, Object> user_data;
+    String user_name;
+    Map<String, Object> user_menus = new HashMap<String, Object>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_main_screen);
-//        bottomNavigationView = findViewById(R.id.bottomNavigation);
+        addNewMenu = findViewById(R.id.addNewMenu);
+        bottomNavigationView = findViewById(R.id.bottomNavigation);
         addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //TODO: add
+                System.out.println("koko");
             }
         });
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -66,23 +76,19 @@ public class UserMainScreen extends AppCompatActivity {
                 return false;
             }
         });
-        String user_mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        getUserData(user_mail);
+        getUserName();
     }
 
     void mainFunction(){
-        hello = findViewById(R.id.Hello);
         bar = findViewById(R.id.Bar);
-        String hello_name = "Hello "+ user_data.get("name");
-        hello.setText(hello_name);
-        if (((Map<String, Object>)user_data.get("menus")).size() > 0) {
-            addMenus((Map<String, Object>)user_data.get("menus"));
+        if (!user_menus.isEmpty()) {
+            addMenus();
         }
     }
 
-    void addMenus(Map<String, Object> user_menus_data){
+    void addMenus(){
         table = (TableLayout) findViewById(R.id.Table);
-        for (Map.Entry<String,Object> entry : user_menus_data.entrySet()){
+        for (Map.Entry<String,Object> entry : user_menus.entrySet()){
             TableRow row = new TableRow(this);
             table.addView(row);
             Button menu = new Button(this);
@@ -102,6 +108,7 @@ public class UserMainScreen extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if(null!=row) { //for safety only  as you are doing onClick
+                        remove_menu((String) menu.getTag());
                         row.removeView(delete);
                         row.removeView(menu);
                     }
@@ -121,8 +128,12 @@ public class UserMainScreen extends AppCompatActivity {
         }
     }
 
-    void getUserData(String mail){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+    void AddNewMenu(String menu_name){
+        //TODO: add that
+    }
+
+    void getUserName(){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         DocumentReference docRef = db.collection("users").document(mail);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -131,8 +142,11 @@ public class UserMainScreen extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
-                        user_data = document.getData();
-                        mainFunction();
+                        user_name = (String) document.getData().get("name");
+                        hello = findViewById(R.id.Hello);
+                        String hello_name = "Hello "+ user_name;
+                        hello.setText(hello_name);
+                        getUserMenus();
                     } else {
                         Log.d("main_activity", "No such document");
                     }
@@ -143,7 +157,42 @@ public class UserMainScreen extends AppCompatActivity {
         });
     }
 
-    void remove_menu(String menu_name){
+    void getUserMenus(){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        db.collection("users").document(mail).collection("menus")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("main_activity", "success get menus");
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                System.out.println(document.getId());
+                                user_menus.put(document.getId(), document.getData());
+                            }
+                            mainFunction();
+                        } else {
+                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
 
+    void remove_menu(String menu_name){
+        String user_mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        db.collection("users/" + user_mail + "/menus").document(menu_name)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("main_activity", "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("main_activity", "Error deleting document", e);
+                    }
+                });
     }
 }
