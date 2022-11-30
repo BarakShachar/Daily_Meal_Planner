@@ -6,16 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".UserMainScreen">
 
-    <FrameLayout
-        android:id="@+id/user_frame"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
 
-    </FrameLayout>
 
     <TextView
         android:id="@+id/Hello"
@@ -58,10 +49,48 @@
         android:layout_marginTop="25dp"
         android:layout_marginBottom="15dp"
         android:visibility="invisible" />
-    <ScrollView
+
+    <FrameLayout
+        android:id="@+id/user_frame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/window"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </FrameLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:menu="@menu/user_menu">
+
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        app:layout_behavior="android.support.constraint.ConstraintLayout"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/window"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/Menu">
+        android:layout_below="@id/Menu"
+        >
+
+    <ScrollView
+        android:id="@+id/Scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
         <TableLayout
             android:id="@+id/Table"
             android:layout_width="match_parent"
@@ -69,12 +98,8 @@
         </TableLayout>
     </ScrollView>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/user_menu">
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+
 </RelativeLayout>

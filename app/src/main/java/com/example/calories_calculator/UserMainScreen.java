@@ -3,11 +3,16 @@ package com.example.calories_calculator;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -56,8 +61,8 @@ public class UserMainScreen extends AppCompatActivity {
 
         hello = (TextView) findViewById(R.id.Hello);
         bar = (ProgressBar) findViewById(R.id.Bar);
-        String name = "Hello "+ user.getName();
-            hello.setText(name);
+//        String name = "Hello "+ user.getName();
+//            hello.setText(name);
         List<String> list=new ArrayList<String>();
         //Adding elements in the List
             list.add("Mango");
@@ -101,7 +106,25 @@ public class UserMainScreen extends AppCompatActivity {
             menu.setText(menus.get(i));
             menu.setId(i);
             menu.setGravity(Gravity.CENTER);
-            menu.setTextSize(10);
+            menu.setTextSize(25);
+            menu.setHeight(30);
+            menu.setWidth(900);
+            ImageButton delete= new ImageButton(this);
+            delete.setImageResource(R.drawable.ic_menu_delete);
+            row.addView(menu);
+            row.addView(delete);
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(null!=row) { //for safety only  as you are doing onClick
+                        row.removeView(delete);
+                        row.removeView(menu);
+                    }
+                    else {
+                        System.out.println("here");
+                    }
+                }
+            });
             menu.setOnClickListener(new View.OnClickListener() {
 
                 @Override
@@ -110,7 +133,7 @@ public class UserMainScreen extends AppCompatActivity {
                     System.out.println("v.getid is:- " + v.getId());
                 }
             });
-            row.addView(menu);
+
         }
     }
 }
