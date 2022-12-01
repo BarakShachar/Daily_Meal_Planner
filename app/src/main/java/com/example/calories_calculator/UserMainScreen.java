@@ -1,16 +1,23 @@
 package com.example.calories_calculator;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -30,6 +37,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,9 +46,10 @@ public class UserMainScreen extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMenu;
     TextView hello;
-    ProgressBar bar;
     TableLayout table;
     String user_name;
+    ArrayList<Button> menuButtons = new ArrayList<Button>();
+    ArrayList<ImageButton> deleteButtons = new ArrayList<ImageButton>();
     Map<String, Object> user_menus = new HashMap<String, Object>();
 
     @Override
@@ -54,6 +63,7 @@ public class UserMainScreen extends AppCompatActivity {
             public void onClick(View view) {
                 //TODO: add
                 System.out.println("koko");
+                getMenuNameFromUser();
             }
         });
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -80,13 +90,28 @@ public class UserMainScreen extends AppCompatActivity {
     }
 
     void mainFunction(){
-        bar = findViewById(R.id.Bar);
-        if (!user_menus.isEmpty()) {
-            addMenus();
+        addMenus();
+    }
+
+    void removeExistingMenus(){
+        for (int i=0; i<menuButtons.size(); i++){
+            ViewGroup layout = (ViewGroup) menuButtons.get(i).getParent();
+            if(null!=layout) //for safety only  as you are doing onClick
+                layout.removeView(menuButtons.get(i));
         }
+        for (int i=0; i<deleteButtons.size(); i++){
+            ViewGroup layout = (ViewGroup) deleteButtons.get(i).getParent();
+            if(null!=layout) //for safety only  as you are doing onClick
+                layout.removeView(deleteButtons.get(i));
+        }
+        menuButtons.clear();
+        deleteButtons.clear();
     }
 
     void addMenus(){
+        if (user_menus.isEmpty()) {
+            return;
+        }
         table = (TableLayout) findViewById(R.id.Table);
         for (Map.Entry<String,Object> entry : user_menus.entrySet()){
             TableRow row = new TableRow(this);
@@ -104,6 +129,8 @@ public class UserMainScreen extends AppCompatActivity {
             delete.setImageResource(R.drawable.ic_menu_delete);
             row.addView(menu);
             row.addView(delete);
+            menuButtons.add(menu);
+            deleteButtons.add(delete);
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -128,8 +155,37 @@ public class UserMainScreen extends AppCompatActivity {
         }
     }
 
-    void AddNewMenu(String menu_name){
-        //TODO: add that
+    void getMenuNameFromUser(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserMainScreen.this);
+        alertDialog.setMessage("enter menu name");
+        final EditText editMenu = new EditText(UserMainScreen.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        editMenu.setLayoutParams(lp);
+        alertDialog.setView(editMenu);
+        alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                validateMenuName(editMenu.getText().toString());
+            }
+        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialog.show();
+    }
+
+    void validateMenuName(String menu_name){
+
+
+
+        removeExistingMenus();
+        addNewMenu(menu_name);
     }
 
     void getUserName(){
@@ -159,7 +215,7 @@ public class UserMainScreen extends AppCompatActivity {
 
     void getUserMenus(){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        db.collection("users").document(mail).collection("menus")
+        db.collection("users/" + mail + "/menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -167,7 +223,6 @@ public class UserMainScreen extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d("main_activity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                System.out.println(document.getId());
                                 user_menus.put(document.getId(), document.getData());
                             }
                             mainFunction();
@@ -179,8 +234,8 @@ public class UserMainScreen extends AppCompatActivity {
     }
 
     void remove_menu(String menu_name){
-        String user_mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        db.collection("users/" + user_mail + "/menus").document(menu_name)
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        db.collection("users/" + mail + "/menus").document(menu_name)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -192,6 +247,27 @@ public class UserMainScreen extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w("main_activity", "Error deleting document", e);
+                    }
+                });
+    }
+
+    void addNewMenu(String menu_name){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        Map<String, Object> menu = new HashMap<>();
+        menu.put("total cals", 0);
+        db.collection("users/" + mail + "/menus").document(menu_name)
+                .set(menu)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("main_activity", "user successfully written to DB!");
+                        getUserMenus();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("main_activity", "Error writing user document", e);
                     }
                 });
     }
