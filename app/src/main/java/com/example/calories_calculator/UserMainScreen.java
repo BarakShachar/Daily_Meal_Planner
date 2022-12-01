@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -90,6 +89,7 @@ public class UserMainScreen extends AppCompatActivity {
     }
 
     void mainFunction(){
+        addName();
         addMenus();
     }
 
@@ -106,6 +106,7 @@ public class UserMainScreen extends AppCompatActivity {
         }
         menuButtons.clear();
         deleteButtons.clear();
+        user_menus.clear();
     }
 
     void addMenus(){
@@ -145,7 +146,6 @@ public class UserMainScreen extends AppCompatActivity {
                 }
             });
             menu.setOnClickListener(new View.OnClickListener() {
-
                 @Override
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
@@ -181,11 +181,15 @@ public class UserMainScreen extends AppCompatActivity {
     }
 
     void validateMenuName(String menu_name){
-
-
-
+        //TODO: validate not same name
         removeExistingMenus();
         addNewMenu(menu_name);
+    }
+
+    void addName(){
+        hello = findViewById(R.id.Hello);
+        String hello_name = "Hello "+ user_name;
+        hello.setText(hello_name);
     }
 
     void getUserName(){
@@ -199,9 +203,6 @@ public class UserMainScreen extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
                         user_name = (String) document.getData().get("name");
-                        hello = findViewById(R.id.Hello);
-                        String hello_name = "Hello "+ user_name;
-                        hello.setText(hello_name);
                         getUserMenus();
                     } else {
                         Log.d("main_activity", "No such document");
