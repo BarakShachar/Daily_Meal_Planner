@@ -7,13 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -47,9 +45,9 @@ public class UserMainScreen extends AppCompatActivity {
     TextView hello;
     TableLayout table;
     String user_name;
-    ArrayList<Button> menuButtons = new ArrayList<Button>();
-    ArrayList<ImageButton> deleteButtons = new ArrayList<ImageButton>();
-    Map<String, Object> user_menus = new HashMap<String, Object>();
+    ArrayList<Button> menuButtons = new ArrayList<>();
+    ArrayList<ImageButton> deleteButtons = new ArrayList<>();
+    Map<String, Object> user_menus = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +58,6 @@ public class UserMainScreen extends AppCompatActivity {
         addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: add
-                System.out.println("koko");
                 getMenuNameFromUser();
             }
         });
@@ -120,7 +116,7 @@ public class UserMainScreen extends AppCompatActivity {
             Button menu = new Button(this);
             menu.setTag(entry.getKey());
             Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
-            String menu_text = entry.getKey() + " (total calories: " + Long.toString(total_cals) + ")";
+            String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
             menu.setText(menu_text);
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
@@ -135,21 +131,20 @@ public class UserMainScreen extends AppCompatActivity {
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(null!=row) { //for safety only  as you are doing onClick
-                        remove_menu((String) menu.getTag());
-                        row.removeView(delete);
-                        row.removeView(menu);
-                    }
-                    else {
-                        System.out.println("here");
-                    }
+                    remove_menu((String) menu.getTag());
+                    row.removeView(delete);
+                    row.removeView(menu);
                 }
             });
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO Auto-generated method stub
-                    System.out.println("v.getid is:- " + v.getId());
+                    Intent in;
+                    in = new Intent(UserMainScreen.this, Menu_Page.class);
+                    in.putExtra("menu_name", (String) menu.getTag());
+                    in.putExtra("user_name", user_name);
+                    startActivity(in);
+                    finish();
                 }
             });
         }
@@ -168,7 +163,14 @@ public class UserMainScreen extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                validateMenuName(editMenu.getText().toString());
+                String menu_name = editMenu.getText().toString();
+                if (user_menus.containsKey(menu_name)){
+                    dialogInterface.dismiss();
+                }
+                else {
+                    removeExistingMenus();
+                    addNewMenu(menu_name);
+                }
             }
         });
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -180,11 +182,6 @@ public class UserMainScreen extends AppCompatActivity {
         alertDialog.show();
     }
 
-    void validateMenuName(String menu_name){
-        //TODO: validate not same name
-        removeExistingMenus();
-        addNewMenu(menu_name);
-    }
 
     void addName(){
         hello = findViewById(R.id.Hello);
