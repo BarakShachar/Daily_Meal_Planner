@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -28,13 +30,16 @@ public class Register extends AppCompatActivity {
 
     EditText usernameEditText, emailEditText, passwordEditText,
             birthdayEditText, heightEditText, weightEditText;
-    Button register_button;
+    Button register_button, back;
     ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        back = findViewById(R.id.Return_button);
+        back.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+        back.setOnClickListener(v -> main_screen());
 
         usernameEditText = findViewById(R.id.Register_username);
         emailEditText = findViewById(R.id.Register_email);

@@ -202,8 +202,6 @@ public class Menu_Page extends AppCompatActivity {
     }
 
 
-
-
     void removeMeal(String meal_name){
         db.collection("users/" + mail + "/menus/" + menuName + "/meals").document(meal_name)
                 .delete()

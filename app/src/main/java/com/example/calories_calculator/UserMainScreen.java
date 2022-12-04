@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,6 +36,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.checkerframework.common.subtyping.qual.Bottom;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +48,7 @@ public class UserMainScreen extends AppCompatActivity {
     FloatingActionButton addNewMenu;
     TextView hello;
     TableLayout table;
+    Button logout;
     String user_name;
     ArrayList<Button> menuButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
@@ -54,6 +59,10 @@ public class UserMainScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_main_screen);
         addNewMenu = findViewById(R.id.addNewMenu);
+        logout = findViewById(R.id.logOut);
+        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+        logout.setOnClickListener(v -> Logout());
+
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,7 +191,6 @@ public class UserMainScreen extends AppCompatActivity {
         alertDialog.show();
     }
 
-
     void addName(){
         hello = findViewById(R.id.Hello);
         String hello_name = "Hello "+ user_name;
@@ -268,5 +276,11 @@ public class UserMainScreen extends AppCompatActivity {
                         Log.w("main_activity", "Error writing user document", e);
                     }
                 });
+    }
+
+    public void Logout() {
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
     }
 }
