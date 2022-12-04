@@ -33,7 +33,7 @@
         android:text="Suggestions:"
         android:textSize="35dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="50dp"
         android:textStyle="bold"
@@ -65,7 +65,8 @@
         android:text="Breakfast"
         android:textSize="25dp"
         android:textStyle="bold"
-        android:background="#FFF176"
+        android:background="@drawable/text_shape"
+        android:backgroundTint="#FFF176"
         android:layout_marginBottom="10dp"
         android:ems="20"
         android:padding="15dp"/>
@@ -81,7 +82,8 @@
         android:text="Lunch"
         android:textSize="25dp"
         android:textStyle="bold"
-        android:background="#FFD54F"
+        android:background="@drawable/text_shape"
+        android:backgroundTint="#FFD54F"
         android:layout_marginBottom="10dp"
         android:ems="20"
         android:padding="15dp"/>
@@ -97,7 +99,8 @@
         android:text="Dinner"
         android:textSize="25dp"
         android:textStyle="bold"
-        android:background="#9575CD"
+        android:background="@drawable/text_shape"
+        android:backgroundTint="#9575CD"
         android:layout_marginBottom="10dp"
         android:ems="20"
         android:padding="15dp"/>
@@ -113,7 +116,8 @@
         android:text="Pre-workout"
         android:textSize="25dp"
         android:textStyle="bold"
-        android:background="#4DD0E1"
+        android:background="@drawable/text_shape"
+        android:backgroundTint="#4DD0E1"
         android:layout_marginBottom="10dp"
         android:ems="20"
         android:padding="15dp"/>
@@ -129,7 +133,8 @@
         android:text="After-workout"
         android:textSize="25dp"
         android:textStyle="bold"
-        android:background="#4DB6AC"
+        android:background="@drawable/text_shape"
+        android:backgroundTint="#4DB6AC"
         android:layout_marginBottom="10dp"
         android:ems="20"
         android:padding="15dp"/>
@@ -145,7 +150,8 @@
         android:text="Cheat Meals"
         android:textSize="25dp"
         android:textStyle="bold"
-        android:background="#FF8A65"
+        android:background="@drawable/text_shape"
+        android:backgroundTint="#FF8A65"
         android:layout_marginBottom="10dp"
         android:ems="20"
         android:padding="15dp"/>
@@ -161,7 +167,8 @@
         android:text="Healthy Snacks"
         android:textSize="25dp"
         android:textStyle="bold"
-        android:background="#AED581"
+        android:background="@drawable/text_shape"
+        android:backgroundTint="#AED581"
         android:layout_marginBottom="10dp"
         android:ems="20"
         android:padding="15dp"/>
