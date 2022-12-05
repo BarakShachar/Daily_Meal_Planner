@@ -5,23 +5,41 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
-import android.view.LayoutInflater;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.ImageButton;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
-public class UserSearch extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+public class UserSearch extends AppCompatActivity implements View.OnClickListener {
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     BottomNavigationView bottomNavigationView;
-    Button logout;
+    Button logout, vegetables, fruits, dairy;
+    TableLayout table;
+    ArrayList<Button> productsButton = new ArrayList<>();
+    ArrayList<ImageButton> addButtons = new ArrayList<>();
+    Map<String, Object> products = new HashMap<>();
+    String text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +48,14 @@ public class UserSearch extends AppCompatActivity {
         logout = findViewById(R.id.logOut);
         logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
+        vegetables = findViewById(R.id.vegetables);
+        vegetables.setOnClickListener(this);
+        fruits = findViewById(R.id.fruits);
+        fruits.setOnClickListener(this);
+        dairy = findViewById(R.id.dairy);
+        dairy.setOnClickListener(this);
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
-
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
@@ -54,9 +77,82 @@ public class UserSearch extends AppCompatActivity {
             }
         });
     }
+
+    void getProducts(String text){
+        DocumentReference docRef = db.collection("food types").document(text);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                            showProducts();
+                    } else {
+                        Log.d("main_activity", "No such document");
+                    }
+                } else {
+                    Log.d("main_activity", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    void showProducts(){
+        if (products.isEmpty()) {
+            return;
+        }
+        table = (TableLayout) findViewById(R.id.product_table);
+        for (Map.Entry<String,Object> entry : products.entrySet()){
+            TableRow row = new TableRow(this);
+            table.addView(row);
+            Button p = new Button(this);
+            p.setTag(entry.getKey());
+            Long calories = (Long) ((Map<String,Object>) entry.getValue()).get("calories");
+            String meal_text = entry.getKey() + " (calories: " + calories + ")";
+            p.setText(meal_text);
+            p.setGravity(Gravity.CENTER);
+            p.setTextSize(15);
+            p.setHeight(30);
+            p.setWidth(900);
+            ImageButton add= new ImageButton(this);
+            add.setImageResource(R.drawable.ic_baseline_add_24);
+            row.addView(p);
+            row.addView(add);
+            productsButton.add(p);
+            addButtons.add(add);
+            add.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                }
+            });
+        }
+    }
+
     public void Logout() {
         Intent intent = new Intent(this, Login.class);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.vegetables:
+                text = "vegetable";
+                getProducts(text);
+                break;
+
+            case R.id.fruits:
+                text = "fruit";
+                getProducts(text);
+                break;
+
+            case R.id.dairy:
+                text = "dairy";
+                getProducts(text);
+                break;
+        }
+
     }
 }
