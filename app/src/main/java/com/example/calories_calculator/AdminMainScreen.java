@@ -33,10 +33,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,11 +45,11 @@ public class AdminMainScreen extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     TextView welcome;
     TableLayout table;
-    String user_name;
+    String adminName;
     Button logout;
     ArrayList<Button> usersButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
-    Map<String, Object> adminUsers = new HashMap<>();
+    ArrayList<String> adminUsers = new ArrayList<>();
 
 
     @Override
@@ -83,7 +80,7 @@ public class AdminMainScreen extends AppCompatActivity {
                 return false;
             }
         });
-        getUserName();
+        getAdminData();
     }
 
     void mainFunction() {
@@ -112,14 +109,12 @@ public class AdminMainScreen extends AppCompatActivity {
             return;
         }
         table = (TableLayout) findViewById(R.id.Table);
-        for (Map.Entry<String, Object> entry : adminUsers.entrySet()) {
+        for (int i=0; i<adminUsers.size();i++){
             TableRow row = new TableRow(this);
             table.addView(row);
             Button menu = new Button(this);
-            menu.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String, Object>) entry.getValue()).get("total cals");
-            String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            menu.setText(menu_text);
+            menu.setTag(adminUsers.get(i));
+            menu.setText(adminUsers.get(i));
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
             menu.setHeight(30);
@@ -155,7 +150,7 @@ public class AdminMainScreen extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String menu_name = editMenu.getText().toString();
-                if (adminUsers.containsKey(menu_name)) {
+                if (adminUsers.contains(menu_name)) {
                     Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
                     dialogInterface.dismiss();
                 } else {
@@ -176,11 +171,11 @@ public class AdminMainScreen extends AppCompatActivity {
 
     void addName() {
         welcome = findViewById(R.id.Hello);
-        String hello_name = "Hello " + user_name;
+        String hello_name = "Hello " + adminName;
         welcome.setText(hello_name);
     }
 
-    void getUserName() {
+    void getAdminData() {
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         DocumentReference docRef = db.collection("users").document(mail);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -190,8 +185,14 @@ public class AdminMainScreen extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
-                        user_name = (String) document.getData().get("name");
-                        getAdminUsers();
+                        adminName = (String) document.getData().get("name");
+                        ArrayList<DocumentReference> userList = (ArrayList<DocumentReference>) document.getData().get("users");
+                        if (userList != null){
+                            for (int i =0; i< userList.size();i++){
+                                adminUsers.add(userList.get(i).getId());
+                            }
+                        }
+                        mainFunction();
                     } else {
                         Log.d("main_activity", "No such document");
                     }
@@ -212,7 +213,7 @@ public class AdminMainScreen extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
                         boolean is_admin = (boolean) document.getData().get("is_admin");
-                        if (adminUsers.containsKey(user_mail)){
+                        if (adminUsers.contains(user_mail)){
                             Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
                         }
                         if (is_admin == false){
@@ -231,62 +232,9 @@ public class AdminMainScreen extends AppCompatActivity {
             }
         });
     }
-    void getAdminUsers() {
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        db.collection("users/" + mail + "/users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("main_activity", "success get menus");
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                adminUsers.put(document.getId(), document.getData());
-                            }
-                            mainFunction();
-                        } else {
-                            Log.d("main_activity", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
 
     void removeUser(String menu_name) {
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        db.collection("users/" + mail + "/users").document(menu_name)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error deleting document", e);
-                    }
-                });
-    }
-
-    void addNewUserMessage(String user_mail) {
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        Map<String, Object> user = new HashMap<>();
-        db.collection("users/" + mail).document(user_mail)
-                .set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "user successfully written to DB!");
-                        getAdminUsers();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error writing user document", e);
-                    }
-                });
+        //TODO: fix that
     }
 
     public void Logout() {

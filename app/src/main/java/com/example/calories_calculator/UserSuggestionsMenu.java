@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -36,7 +35,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firestore.v1.WriteResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +48,6 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     PopupMenu menus;
     DocumentReference admin_ref = null;
     String user_name;
-    Map<String, Object> test;
     String suggestion_menu_name;
     ArrayList<String> userExistingMenus = new ArrayList<>();
     @Override
@@ -58,11 +55,6 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_suggestions_menu);
         suggestion_menu_name = (String) getIntent().getExtras().get("suggestion_menu_name");
-        String s ="morning ";
-        test = new HashMap<>();
-        for (int i = 0; i < 40; i++) {
-            test.put(s+ Integer.toString(i), s+ Integer.toString(i));
-        }
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -84,6 +76,7 @@ public class UserSuggestionsMenu extends AppCompatActivity {
                 return false;
             }
         });
+        getGeneralSuggestionMeals();
         getUserData();
         getUserExistingMenus();
     }
@@ -119,12 +112,11 @@ public class UserSuggestionsMenu extends AppCompatActivity {
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    popup_list_products1(test);
+                    popup_list_products((String) menu.getTag());
                 }
             });
         }
     }
-
 
     public void show_popup(View v, String selected_meal){
         menus = new PopupMenu(this,v);
@@ -141,7 +133,6 @@ public class UserSuggestionsMenu extends AppCompatActivity {
             }
         });
     }
-
 
     void getMenuNameFromUser(String menu_name, String selected_meal){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestionsMenu.this);
@@ -169,7 +160,11 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         alertDialog.show();
     }
 
-    public void popup_list_products1(Map<String,Object> products){
+    public void popup_list_products(String mealName){
+        ArrayList<Map<String, Object>> foodProducts = ((Map<String, ArrayList<Map<String, Object>>>) suggestion_meals.get(mealName)).get("foods");
+        if (foodProducts == null){
+            return;
+        }
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestionsMenu.this);
         alertDialog.setTitle("The products of the meal:");
         LinearLayout rootLayout = new LinearLayout(this);
@@ -178,11 +173,30 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         TableLayout table = new TableLayout(this);
-        for (Map.Entry<String,Object> entry : products.entrySet()) {
+        TextView nameHead = new TextView(this);
+        TextView quantityHead = new TextView(this);
+        TableRow rowHead = new TableRow(this);
+        nameHead.setText("name");
+        nameHead.setTextSize(20);
+        nameHead.setWidth(300);
+        rowHead.addView(nameHead);
+        quantityHead.setText("quantity");
+        quantityHead.setTextSize(20);
+        rowHead.addView(quantityHead);
+        table.addView(rowHead);
+        for (Map<String, Object> currentFood : foodProducts) {
             TextView product = new TextView(this);
+            TextView productQuantity = new TextView(this);
             TableRow row = new TableRow(this);
-            product.setText(entry.getKey());
+            DocumentReference foodRef = (DocumentReference) currentFood.get("food_ref");
+            String foodName = foodRef.getId();
+            String foodQuantity = Long.toString((Long) currentFood.get("quantity"));
+            productQuantity.setText(foodQuantity);
+            productQuantity.setTextSize(10);
+            product.setText(foodName);
+            product.setTextSize(10);
             row.addView(product);
+            row.addView(productQuantity);
             table.addView(row);
         }
         layout.addView(table);
@@ -211,7 +225,6 @@ public class UserSuggestionsMenu extends AppCompatActivity {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
                         user_name = (String) document.getData().get("name");
                         admin_ref = (DocumentReference) document.getData().get("admin_ref");
-                        getGeneralSuggestionMeals();
                         if (admin_ref!= null){
                             getAdminSuggestionMeals();
                         }
@@ -272,7 +285,6 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         DocumentReference menuDocRef = db.collection("users/" +mail+"/menus").document(menu_name);
         menuDocRef.update("total_cals", FieldValue.increment(total_meal_cals));
     }
-
 
     void getGeneralSuggestionMeals(){
         db.collection("users/" + "Admin/" + "menus/" + suggestion_menu_name + "/meals")

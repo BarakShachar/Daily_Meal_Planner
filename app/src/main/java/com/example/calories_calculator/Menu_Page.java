@@ -28,6 +28,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -204,12 +206,14 @@ public class Menu_Page extends AppCompatActivity {
 
 
     void removeMeal(String meal_name){
+        Long total_meal_cals = ((Long) userMeals.get("total_cals")) * -1;
         db.collection("users/" + mail + "/menus/" + menuName + "/meals").document(meal_name)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("main_activity", "DocumentSnapshot successfully deleted!");
+                        updateMenuTotalCals(total_meal_cals);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -218,6 +222,12 @@ public class Menu_Page extends AppCompatActivity {
                         Log.w("main_activity", "Error deleting document", e);
                     }
                 });
+    }
+
+    void updateMenuTotalCals(Long total_meal_cals){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        DocumentReference menuDocRef = db.collection("users/" +mail+"/menus").document(menuName);
+        menuDocRef.update("total_cals", FieldValue.increment(total_meal_cals));
     }
 
     void addNewMeal(String meal_name){
