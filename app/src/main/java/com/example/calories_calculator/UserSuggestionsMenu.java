@@ -171,44 +171,34 @@ public class UserSuggestionsMenu extends AppCompatActivity {
 
     public void popup_list_products1(Map<String,Object> products){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestionsMenu.this);
-        alertDialog.setMessage("The products of the meal:");
-        ScrollView scroll = new ScrollView(alertDialog.getContext());
-//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.MATCH_PARENT,
-//                LinearLayout.LayoutParams.MATCH_PARENT
-//        );
-        //scroll.setLayoutParams(lp);
-        TableLayout table = new TableLayout(scroll.getContext());
-        scroll.addView(table);
+        alertDialog.setTitle("The products of the meal:");
+        LinearLayout rootLayout = new LinearLayout(this);
+        rootLayout.setOrientation(LinearLayout.VERTICAL);
+        ScrollView scrollView = new ScrollView(UserSuggestionsMenu.this);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        TableLayout table = new TableLayout(this);
         for (Map.Entry<String,Object> entry : products.entrySet()) {
-            TextView product = new TextView(scroll.getContext());
-            TableRow row = new TableRow(table.getContext());
+            TextView product = new TextView(this);
+            TableRow row = new TableRow(this);
             product.setText(entry.getKey());
             row.addView(product);
             table.addView(row);
-
         }
-
-       // Window view= ((AlertDialog.Builder)alertDialog).create().getWindow();
-        //view.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        layout.addView(table);
+        scrollView.addView(layout);
+        rootLayout.addView(scrollView);
+        alertDialog.setNegativeButton("Close", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
             }
         });
-        alertDialog.setView(scroll);
+        alertDialog.setView(rootLayout);
         alertDialog.show();
-
-
 
     }
 
-//    public void popup_list_products(Map<String,Object> products){
-//        WheelViewDialog dialog = new WheelViewDialog(this);
-//
-//    }
     void getUserData(){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         DocumentReference docRef = db.collection("users").document(mail);
