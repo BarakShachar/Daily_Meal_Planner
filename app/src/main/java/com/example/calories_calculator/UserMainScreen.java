@@ -32,6 +32,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -198,6 +199,31 @@ public class UserMainScreen extends AppCompatActivity {
         hello.setText(hello_name);
     }
 
+
+    void AdminRequest(String admin_mail){
+        String user_mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        DocumentReference user = db.collection("users").document(user_mail);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserMainScreen.this);
+        alertDialog.setMessage("Admin: " + admin_mail + " Wants to add you to their users.");
+        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                DocumentReference admin = db.collection("users").document(admin_mail);
+                admin.update("users", FieldValue.arrayUnion(user));
+                user.update("admin_ref", admin);
+                user.update("message", FieldValue.delete());
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                user.update("message", FieldValue.delete());
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialog.show();
+    }
     void getUserName(){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         DocumentReference docRef = db.collection("users").document(mail);
@@ -209,7 +235,12 @@ public class UserMainScreen extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
                         user_name = (String) document.getData().get("name");
+                        String admin_request = (String) document.getData().get("message");
+                        if (admin_request != null){
+                            AdminRequest(admin_request);
+                        }
                         getUserMenus();
+
                     } else {
                         Log.d("main_activity", "No such document");
                     }

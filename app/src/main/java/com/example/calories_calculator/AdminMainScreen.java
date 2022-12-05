@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,6 +33,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -154,6 +156,7 @@ public class AdminMainScreen extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 String menu_name = editMenu.getText().toString();
                 if (adminUsers.containsKey(menu_name)) {
+                    Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
                     dialogInterface.dismiss();
                 } else {
                     removeExistingUsers();
@@ -198,7 +201,36 @@ public class AdminMainScreen extends AppCompatActivity {
             }
         });
     }
-
+    void addNewUser(String user_mail){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        DocumentReference docRef = db.collection("users").document(user_mail);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                        boolean is_admin = (boolean) document.getData().get("is_admin");
+                        if (adminUsers.containsKey(user_mail)){
+                            Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
+                        }
+                        if (is_admin == false){
+                            docRef.update("message", mail);
+                        }
+                        else{
+                            Toast.makeText(AdminMainScreen.this, "This user is admin", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(AdminMainScreen.this, "This user doesn't exist", Toast.LENGTH_SHORT).show();
+                        Log.d("main_activity", "No such document");
+                    }
+                } else {
+                    Log.d("main_activity", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
     void getAdminUsers() {
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         db.collection("users/" + mail + "/users")
@@ -237,10 +269,10 @@ public class AdminMainScreen extends AppCompatActivity {
                 });
     }
 
-    void addNewUser(String menu_name) {
+    void addNewUserMessage(String user_mail) {
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         Map<String, Object> user = new HashMap<>();
-        db.collection("users/" + mail + "/users").document(menu_name)
+        db.collection("users/" + mail).document(user_mail)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
