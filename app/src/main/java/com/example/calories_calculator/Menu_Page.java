@@ -34,6 +34,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class Menu_Page extends AppCompatActivity {
@@ -129,7 +130,7 @@ public class Menu_Page extends AppCompatActivity {
             table.addView(row);
             Button meal = new Button(this);
             meal.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
+            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
             String meal_text = entry.getKey() + " (total calories: " + total_cals + ")";
             meal.setText(meal_text);
             meal.setGravity(Gravity.CENTER);
@@ -166,7 +167,7 @@ public class Menu_Page extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String meal_name = editMeal.getText().toString();
+                String meal_name = editMeal.getText().toString().toLowerCase(Locale.ROOT);
                 if (userMeals.containsKey(meal_name)){
                     dialogInterface.dismiss();
                 }
@@ -221,7 +222,7 @@ public class Menu_Page extends AppCompatActivity {
 
     void addNewMeal(String meal_name){
         Map<String, Object> meal = new HashMap<>();
-        meal.put("total cals", 0);
+        meal.put("total_cals", 0);
         db.collection("users/" + mail + "/menus/" + menuName + "/meals").document(meal_name)
                 .set(meal)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

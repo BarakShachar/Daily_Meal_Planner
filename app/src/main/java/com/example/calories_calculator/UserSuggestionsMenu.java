@@ -1,5 +1,6 @@
 package com.example.calories_calculator;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,49 +8,62 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
-import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firestore.v1.WriteResult;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserSuggestionsMenu extends AppCompatActivity {
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     BottomNavigationView bottomNavigationView;
-    Map<String, Object> user_meals = new HashMap<>();
+    Map<String, Object> suggestion_meals = new HashMap<>();
     TableLayout table;
     PopupMenu menus;
+    DocumentReference admin_ref = null;
+    String user_name;
     Map<String, Object> test;
-    ListPopupWindow listPopupWindow;
+    String suggestion_menu_name;
+    ArrayList<String> userExistingMenus = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_suggestions_menu);
+        suggestion_menu_name = (String) getIntent().getExtras().get("suggestion_menu_name");
         String s ="morning ";
         test = new HashMap<>();
         for (int i = 0; i < 40; i++) {
             test.put(s+ Integer.toString(i), s+ Integer.toString(i));
         }
         bottomNavigationView = findViewById(R.id.bottomNavigation);
-        user_meals.put("morning2","morning1");
-        addMeals();
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
@@ -70,22 +84,23 @@ public class UserSuggestionsMenu extends AppCompatActivity {
                 return false;
             }
         });
-
+        getUserData();
+        getUserExistingMenus();
     }
 
     void addMeals(){
-        if (user_meals.isEmpty()) {
+        if (suggestion_meals.isEmpty()) {
             return;
         }
         table = (TableLayout) findViewById(R.id.Table);
-        for (Map.Entry<String,Object> entry : user_meals.entrySet()){
+        for (Map.Entry<String,Object> entry : suggestion_meals.entrySet()){
             TableRow row = new TableRow(this);
             table.addView(row);
             Button menu = new Button(this);
             menu.setTag(entry.getKey());
-            // Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
-            //String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            //menu.setText(menu_text);
+            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
+            String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
+            menu.setText(menu_text);
             menu.setText(entry.getKey());
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
@@ -95,44 +110,32 @@ public class UserSuggestionsMenu extends AppCompatActivity {
             add.setImageResource(R.drawable.ic_baseline_add_24);
             row.addView(menu);
             row.addView(add);
-//            menuButtons.add(menu);
-//            deleteButtons.add(delete);
             add.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    show_popup(view);
+                    show_popup(view, (String) menu.getTag());
                 }
             });
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent in;
-                    String s = "morning ";
                     popup_list_products1(test);
-//                    in = new Intent(UserSuggestionsMenu.this, UserSuggestions.class);
-////                    in.putExtra("menu_name", (String) menu.getTag());
-////                    in.putExtra("user_name", user_name);
-//                    startActivity(in);
-//                    finish();
                 }
-
             });
         }
     }
 
 
-    public void show_popup(View v){
+    public void show_popup(View v, String selected_meal){
         menus = new PopupMenu(this,v);
-        menus.getMenu().add("AGIL");
-        menus.getMenu().add("AGILarasan");
-        menus.getMenu().add("Arasan");
+        for (int i=0; i<userExistingMenus.size();i++){
+            menus.getMenu().add(userExistingMenus.get(i));
+        }
         menus.show();
         menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                String s = (String) menuItem.getTitle();
-                System.out.println(menuItem.getTitle());
-                getMenuNameFromUser((String) menuItem.getTitle());
+                getMenuNameFromUser((String) menuItem.getTitle(), selected_meal);
 
                 return true;
             }
@@ -140,28 +143,21 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     }
 
 
-    void getMenuNameFromUser(String meal){
+    void getMenuNameFromUser(String menu_name, String selected_meal){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestionsMenu.this);
-        alertDialog.setMessage("enter the meal you want to add to " + meal);
-        final EditText editMenu = new EditText(UserSuggestionsMenu.this);
+        alertDialog.setMessage("enter the meal name");
+        final EditText editMeal = new EditText(UserSuggestionsMenu.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
         );
-        editMenu.setLayoutParams(lp);
-        alertDialog.setView(editMenu);
+        editMeal.setLayoutParams(lp);
+        alertDialog.setView(editMeal);
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String menu_name = editMenu.getText().toString();
-                System.out.println(menu_name);
-//                if (user_menus.containsKey(menu_name)){
-//                    dialogInterface.dismiss();
-//                }
-//                else {
-//                    removeExistingMenus();
-//                    addNewMenu(menu_name);
-//                }
+                String meal_name = editMeal.getText().toString();
+                addToUserMenu(menu_name, meal_name, (Map<String, Object>) suggestion_meals.get(selected_meal));
             }
         });
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -213,6 +209,117 @@ public class UserSuggestionsMenu extends AppCompatActivity {
 //        WheelViewDialog dialog = new WheelViewDialog(this);
 //
 //    }
+    void getUserData(){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        DocumentReference docRef = db.collection("users").document(mail);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                        user_name = (String) document.getData().get("name");
+                        admin_ref = (DocumentReference) document.getData().get("admin_ref");
+                        getGeneralSuggestionMeals();
+                        if (admin_ref!= null){
+                            getAdminSuggestionMeals();
+                        }
+                        else{
+                            addMeals();
+                        }
+                    } else {
+                        Log.d("main_activity", "No such document");
+                    }
+                } else {
+                    Log.d("main_activity", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    void getUserExistingMenus(){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        db.collection("users/" + mail + "/menus")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("main_activity", "success get menus");
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                userExistingMenus.add(document.getId());
+                            }
+                        } else {
+                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    void addToUserMenu(String menu_name, String meal_name, Map<String, Object> meal_data){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        Long total_add_cals = (Long) meal_data.get("total_cals");
+        db.collection("users/" + mail + "/menus/" + menu_name + "/meals").document(meal_name)
+                .set(meal_data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("main_activity", "user successfully written to DB!");
+                        updateMenuTotalCals(menu_name, total_add_cals);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("main_activity", "Error writing user document", e);
+                    }
+                });
+    }
+
+    void updateMenuTotalCals(String menu_name, Long total_meal_cals){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        DocumentReference menuDocRef = db.collection("users/" +mail+"/menus").document(menu_name);
+        menuDocRef.update("total_cals", FieldValue.increment(total_meal_cals));
+    }
+
+
+    void getGeneralSuggestionMeals(){
+        db.collection("users/" + "Admin/" + "menus/" + suggestion_menu_name + "/meals")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("main_activity", "success get menus");
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                suggestion_meals.put(document.getId(), document.getData());
+                            }
+                        } else {
+                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    void getAdminSuggestionMeals(){
+        admin_ref.collection("menus/" + suggestion_menu_name + "/meals")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("main_activity", "success get menus");
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                suggestion_meals.put(document.getId(), document.getData());
+                            }
+                            addMeals();
+                        } else {
+                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
 
 
 }

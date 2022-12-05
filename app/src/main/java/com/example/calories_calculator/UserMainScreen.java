@@ -40,6 +40,7 @@ import org.checkerframework.common.subtyping.qual.Bottom;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class UserMainScreen extends AppCompatActivity {
@@ -124,7 +125,7 @@ public class UserMainScreen extends AppCompatActivity {
             table.addView(row);
             Button menu = new Button(this);
             menu.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
+            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
             String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
             menu.setText(menu_text);
             menu.setGravity(Gravity.CENTER);
@@ -172,7 +173,7 @@ public class UserMainScreen extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String menu_name = editMenu.getText().toString();
+                String menu_name = editMenu.getText().toString().toLowerCase(Locale.ROOT);
                 if (user_menus.containsKey(menu_name)){
                     dialogInterface.dismiss();
                 }
@@ -260,7 +261,7 @@ public class UserMainScreen extends AppCompatActivity {
     void addNewMenu(String menu_name){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         Map<String, Object> menu = new HashMap<>();
-        menu.put("total cals", 0);
+        menu.put("total_cals", 0);
         db.collection("users/" + mail + "/menus").document(menu_name)
                 .set(menu)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
