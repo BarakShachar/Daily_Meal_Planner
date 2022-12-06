@@ -21,13 +21,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +39,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     TableLayout table;
     ArrayList<Button> productsButton = new ArrayList<>();
     ArrayList<ImageButton> addButtons = new ArrayList<>();
-    Map<String, Object> products = new HashMap<>();
+    Map<String, HashMap<String, Object>> products = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +78,27 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         });
     }
 
-
-    void getProducts(String text){
+    void getProducts(String item){
+        DocumentReference foods = db.collection("foods").document(item);
+        foods.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        products.put(item,(HashMap<String, Object>)document.getData());
+                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d("main_activity", "No such document");
+                    }
+                } else {
+                    Log.d("main_activity", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+    void getProductsRef(String text){
         DocumentReference docRef = db.collection("food types").document(text);
-
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -91,28 +107,15 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                     if (document.exists()) {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
                         ArrayList<DocumentReference> foodList = (ArrayList<DocumentReference>) document.getData().get("foods");
-                        if (foodList != null){
+
                             for (int i =0; i< foodList.size();i++){
                                 String name = foodList.get(i).getId();
-                                DocumentReference foods = db.collection("foods").document(name);
-                                products.put(name,foods);
-//                                foods.get()
-//                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                                            @Override
-//                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                                                if (task.isSuccessful()) {
-//                                                    Log.d("main_activity", "success get food");
-//                                                    for (QueryDocumentSnapshot document : task.getResult()) {
-//                                                        System.out.println(document.getId());
-//                                                        System.out.println(document.getData().get("calories"));
-//                                                        products.put(document.getId(), document.getData());
-//                                                    }
-//                                                }
-//                                            }
-//                                        });
+                                getProducts(name);
                             }
-                        }
-                        showProducts();
+
+                            System.out.println("hey");
+                            showProducts();
+
                     } else {
                         Log.d("main_activity", "No such document");
                     }
@@ -125,17 +128,20 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
 
     void showProducts(){
-
         if (products.isEmpty()) {
+            System.out.println(products.isEmpty());
+            System.out.println("empty");
             return;
         }
         table = (TableLayout) findViewById(R.id.product_table);
-        for (Map.Entry<String,Object> entry : products.entrySet()){
+        for (Map.Entry<String, HashMap<String, Object>> entry : products.entrySet()){
             TableRow row = new TableRow(this);
             table.addView(row);
             Button p = new Button(this);
             p.setTag(entry.getKey());
-            Long calories = (Long) ((DocumentReference) entry.getValue()).get("calories");
+            //Map<String, Object> foodProducts = (Map<String, Object>) ( entry.getValue());
+            Long calories = (Long)entry.getValue().get("calories");// .get("calories");
+            System.out.println(calories);
             String meal_text = entry.getKey() + " (calories: " + calories + ")";
             p.setText(meal_text);
             p.setGravity(Gravity.CENTER);
@@ -168,17 +174,19 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         switch (v.getId()){
             case R.id.vegetables:
                 text = "vegetable";
-                getProducts(text);
+                System.out.println(products.isEmpty());
+                getProductsRef(text);
+                System.out.println(products.isEmpty());
                 break;
 
             case R.id.fruits:
                 text = "fruit";
-                getProducts(text);
+                //getProductsRef(text);
                 break;
 
             case R.id.dairy:
                 text = "dairy";
-                getProducts(text);
+                //getProductsRef(text);
                 break;
         }
 

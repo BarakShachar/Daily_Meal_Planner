@@ -33,6 +33,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -112,25 +113,36 @@ public class AdminMainScreen extends AppCompatActivity {
         for (int i=0; i<adminUsers.size();i++){
             TableRow row = new TableRow(this);
             table.addView(row);
-            Button menu = new Button(this);
-            menu.setTag(adminUsers.get(i));
-            menu.setText(adminUsers.get(i));
-            menu.setGravity(Gravity.CENTER);
-            menu.setTextSize(15);
-            menu.setHeight(30);
-            menu.setWidth(900);
+            Button user = new Button(this);
+            user.setTag(adminUsers.get(i));
+            user.setText(adminUsers.get(i));
+            user.setGravity(Gravity.CENTER);
+            user.setTextSize(15);
+            user.setHeight(30);
+            user.setWidth(900);
             ImageButton delete = new ImageButton(this);
             delete.setImageResource(R.drawable.ic_menu_delete);
-            row.addView(menu);
+            row.addView(user);
             row.addView(delete);
-            usersButtons.add(menu);
+            usersButtons.add(user);
             deleteButtons.add(delete);
+            user.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent in;
+                    in = new Intent(AdminMainScreen.this, Menu_Page.class);
+                    in.putExtra("menu_name", (String) user.getTag());
+                    in.putExtra("user_name", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                    startActivity(in);
+                    finish();
+                }
+            });
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    removeUser((String) menu.getTag());
+                    removeUser((String) user.getTag());
                     row.removeView(delete);
-                    row.removeView(menu);
+                    row.removeView(user);
                 }
             });
         }
@@ -233,8 +245,11 @@ public class AdminMainScreen extends AppCompatActivity {
         });
     }
 
-    void removeUser(String menu_name) {
-        //TODO: fix that
+    void removeUser(String user_mail) {
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        DocumentReference admin = db.collection("users").document(mail);
+        DocumentReference user = db.collection("users").document(user_mail);
+        admin.update("users", FieldValue.arrayRemove(user));
     }
 
     public void Logout() {
