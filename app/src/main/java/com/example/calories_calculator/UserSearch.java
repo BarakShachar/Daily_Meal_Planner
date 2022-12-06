@@ -21,6 +21,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,7 +41,6 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     ArrayList<Button> productsButton = new ArrayList<>();
     ArrayList<ImageButton> addButtons = new ArrayList<>();
     Map<String, Object> products = new HashMap<>();
-    String text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +79,10 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         });
     }
 
+
     void getProducts(String text){
         DocumentReference docRef = db.collection("food types").document(text);
+
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -87,7 +90,29 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
-                            showProducts();
+                        ArrayList<DocumentReference> foodList = (ArrayList<DocumentReference>) document.getData().get("foods");
+                        if (foodList != null){
+                            for (int i =0; i< foodList.size();i++){
+                                String name = foodList.get(i).getId();
+                                DocumentReference foods = db.collection("foods").document(name);
+                                products.put(name,foods);
+//                                foods.get()
+//                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                                            @Override
+//                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                                                if (task.isSuccessful()) {
+//                                                    Log.d("main_activity", "success get food");
+//                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+//                                                        System.out.println(document.getId());
+//                                                        System.out.println(document.getData().get("calories"));
+//                                                        products.put(document.getId(), document.getData());
+//                                                    }
+//                                                }
+//                                            }
+//                                        });
+                            }
+                        }
+                        showProducts();
                     } else {
                         Log.d("main_activity", "No such document");
                     }
@@ -98,7 +123,9 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         });
     }
 
+
     void showProducts(){
+
         if (products.isEmpty()) {
             return;
         }
@@ -108,7 +135,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
             table.addView(row);
             Button p = new Button(this);
             p.setTag(entry.getKey());
-            Long calories = (Long) ((Map<String,Object>) entry.getValue()).get("calories");
+            Long calories = (Long) ((DocumentReference) entry.getValue()).get("calories");
             String meal_text = entry.getKey() + " (calories: " + calories + ")";
             p.setText(meal_text);
             p.setGravity(Gravity.CENTER);
@@ -137,6 +164,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
+        String text;
         switch (v.getId()){
             case R.id.vegetables:
                 text = "vegetable";
