@@ -64,8 +64,6 @@ public class Login extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) { //login is successful
                     Toast.makeText(Login.this, "login successfully!", Toast.LENGTH_SHORT).show();
-                    // this is where we need to get the user value from the database by his email address
-                    // after we got his value, we can check if he's a user or admin
                     getUserData(email);
                 } else {
                     changeInProgress(false);

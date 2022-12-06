@@ -78,7 +78,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         });
     }
 
-    void getProducts(String item){
+    void getProducts(String item, boolean is_last){
         DocumentReference foods = db.collection("foods").document(item);
         foods.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -87,6 +87,9 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         products.put(item,(HashMap<String, Object>)document.getData());
+                        if (is_last){
+                            showProducts();
+                        }
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
                     } else {
                         Log.d("main_activity", "No such document");
@@ -110,11 +113,13 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
                             for (int i =0; i< foodList.size();i++){
                                 String name = foodList.get(i).getId();
-                                getProducts(name);
-                            }
+                                if (i == foodList.size() - 1) {
+                                    getProducts(name, true);
+                                } else {
+                                    getProducts(name, false);
+                                }
 
-                            System.out.println("hey");
-                            showProducts();
+                            }
 
                     } else {
                         Log.d("main_activity", "No such document");
