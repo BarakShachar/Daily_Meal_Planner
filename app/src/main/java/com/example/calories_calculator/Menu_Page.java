@@ -57,7 +57,7 @@ public class Menu_Page extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_page);
         menuName = (String) getIntent().getExtras().get("menu_name");
-        user_name = (String) getIntent().getExtras().get("user_name");
+//        user_name = (String) getIntent().getExtras().get("user_name");
         addNewMeal = findViewById(R.id.addNewMeal);
         mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         bottomNavigationView = findViewById(R.id.bottomNavigation);
@@ -91,7 +91,7 @@ public class Menu_Page extends AppCompatActivity {
     }
 
     void mainFunction(){
-        addName();
+//        addName();
         addMenusMeals();
     }
 

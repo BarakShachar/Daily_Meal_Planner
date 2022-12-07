@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -48,6 +49,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     ArrayList<ImageButton> addButtons = new ArrayList<>();
     Map<String, HashMap<String, Object>> products = new HashMap<>();
     Map<String, ArrayList<String>> userExistingMeals = new HashMap<>();
+    String lastSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,32 +174,62 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
     void selectMenuToAddItem(View view, String itemName){
         menus = new PopupMenu(this,view);
-        for (Map.Entry<String,ArrayList<String>> entry : userExistingMeals.entrySet()){
-            menus.getMenu().add(entry.getKey());
+        if (userExistingMeals.isEmpty()){
+            menus.getMenu().add("create new menu");
+            menus.show();
+            menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    Intent in = new Intent(UserSearch.this, UserMainScreen.class);
+                    startActivity(in);
+                    return true;
+                }
+            });
         }
-        menus.show();
-        menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                selectMealToAddItem(view, (String) menuItem.getTitle(), itemName);
-                return true;
+        else {
+            for (Map.Entry<String, ArrayList<String>> entry : userExistingMeals.entrySet()) {
+                menus.getMenu().add(entry.getKey());
             }
-        });
+            menus.show();
+            menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    selectMealToAddItem(view, (String) menuItem.getTitle(), itemName);
+                    return true;
+                }
+            });
+        }
     }
+
     void selectMealToAddItem(View view, String menuSelected, String itemName){
         menus = new PopupMenu(this,view);
-        for (int i=0; i<userExistingMeals.get(menuSelected).size();i++){
-            menus.getMenu().add(userExistingMeals.get(menuSelected).get(i));
+        if (userExistingMeals.get(menuSelected).isEmpty()){
+            menus.getMenu().add("create new meal");
+            menus.show();
+            menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    Intent in = new Intent(UserSearch.this, Menu_Page.class);
+                    in.putExtra("menu_name", menuSelected);
+//                    in.putExtra("user_name", user_name);
+                    startActivity(in);
+                    return true;
+                }
+            });
         }
-        menus.show();
-        menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                //TODO: make loading circle shit
-                getItemQuantity(menuSelected, (String) menuItem.getTitle(), itemName);
-                return true;
+        else {
+            for (int i = 0; i < userExistingMeals.get(menuSelected).size(); i++) {
+                menus.getMenu().add(userExistingMeals.get(menuSelected).get(i));
             }
-        });
+            menus.show();
+            menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    getItemQuantity(menuSelected, (String) menuItem.getTitle(), itemName);
+                    return true;
+                }
+            });
+        }
     }
 
     void getItemQuantity(String menuName, String mealName, String itemName){
@@ -215,7 +247,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 int quantity = Integer.parseInt(editQuantity.getText().toString());
-                validateAndAddNoItemOnMeal(menuName, mealName, itemName, quantity);
+                validateItemOnMeal(menuName, mealName, itemName, quantity);
             }
         });
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -228,7 +260,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     }
 
 
-    void validateAndAddNoItemOnMeal(String menuName, String mealName, String itemName, int quantity){
+    void validateItemOnMeal(String menuName, String mealName, String itemName, int quantity){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         DocumentReference itemRef = db.collection("foods").document(itemName);
         DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
@@ -238,25 +270,15 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        boolean foodExist = false;
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
                         ArrayList<Map<String, Object>> foodList = (ArrayList<Map<String, Object>>) document.getData().get("foods");
                         for (int i =0; i< foodList.size();i++){
-                            if (foodList.get(i).get("food_ref") == itemRef){
-                                foodExist = true;
-                                //TODO: shout on the user he is an idiot
-                                break;
+                            if (itemRef.equals(foodList.get(i).get("food_ref"))){
+                                Toast.makeText(UserSearch.this, "you already have "+ itemName + " in this meal", Toast.LENGTH_SHORT).show();
+                                return;
                             }
                         }
-                        if (!foodExist){
-                            Map<String, Object> newItem = new HashMap<>();
-                            newItem.put("food_ref", itemRef);
-                            newItem.put("quantity", quantity);
-                            docRef.update("foods", FieldValue.arrayUnion(newItem));
-                            Long totalAddCals = ((Long) products.get(itemName).get("calories")) * quantity;
-                            docRef.update("total_cals", FieldValue.increment(totalAddCals));
-                            docRef.getParent().getParent().update("total_cals", FieldValue.increment(totalAddCals));
-                        }
+                        addItemToMeal(docRef, itemName, quantity);
                     } else {
                         Log.d("main_activity", "No such document");
                     }
@@ -267,12 +289,19 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         });
     }
 
+    void addItemToMeal(DocumentReference docRef, String itemName, int quantity){
+        DocumentReference itemRef = db.collection("foods").document(itemName);
+        Map<String, Object> newItem = new HashMap<>();
+        newItem.put("food_ref", itemRef);
+        newItem.put("quantity", quantity);
+        docRef.update("foods", FieldValue.arrayUnion(newItem));
+        Long totalAddCals = ((Long) products.get(itemName).get("calories")) * quantity;
+        docRef.update("total_cals", FieldValue.increment(totalAddCals));
+        docRef.getParent().getParent().update("total_cals", FieldValue.increment(totalAddCals));
+        Toast.makeText(UserSearch.this, quantity + " " +itemName +" added to your meal", Toast.LENGTH_SHORT).show();
+    }
 
-    //if there is no meals at all
-    //if there is no menus
-    //if there is already this item
     //load circle
-    //cache search
 
     public void Logout() {
         Intent intent = new Intent(this, Login.class);
@@ -286,7 +315,11 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         switch (v.getId()){
             case R.id.vegetables:
                 text = "vegetable";
-                getProductsRef(text);
+                if (text != lastSearch){
+                    products.clear();
+                    lastSearch = text;
+                    getProductsRef(text);
+                }
                 break;
 
             case R.id.fruits:
@@ -339,9 +372,5 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                         }
                     }
                 });
-    }
-
-    void getUserExistingMeals(){
-
     }
 }
