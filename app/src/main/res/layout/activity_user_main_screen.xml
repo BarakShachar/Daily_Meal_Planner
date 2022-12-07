@@ -12,20 +12,20 @@
         android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginTop="65dp"
+        android:layout_marginBottom="20dp"
         android:textSize="20dp"
         android:textStyle="bold" />
 
     <Button
         android:id="@+id/logOut"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         android:layout_alignRight="@id/user_frame"
-        android:background="@android:drawable/ic_lock_power_off"
+        android:background="@drawable/ic_logout"
         android:backgroundTint="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -37,17 +37,15 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/Hello"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="25dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="50dp"
         android:padding="10dp"
-        android:text="Menus"
+        android:text="My Menus"
         android:textSize="35dp"
         android:textStyle="bold"
         android:textColor="#009688"
         android:gravity="center"
         />
-
 
     <FrameLayout
         android:id="@+id/user_frame"
@@ -60,12 +58,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </FrameLayout>
+
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         app:menu="@menu/user_menu">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
@@ -76,12 +75,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/Menu"
+        android:layout_above="@+id/bottomNavigation"
         >
 
         <ScrollView
             android:id="@+id/Scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:layout_anchor="@+id/Scroll"
+            app:layout_anchorGravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -99,8 +101,8 @@
         android:id="@+id/addNewMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/window"
         android:layout_alignParentEnd="true"
+        android:layout_above="@+id/bottomNavigation"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="0dp"
         android:clickable="true"

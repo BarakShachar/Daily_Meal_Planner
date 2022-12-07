@@ -78,17 +78,15 @@ public class UserMainScreen extends AppCompatActivity {
             public boolean onNavigationItemSelected(MenuItem item) {
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        startActivity(new Intent(getApplicationContext(),UserMainScreen.class));
-                        overridePendingTransition(0,0);
-                        return true;
+                        break;
                     case R.id.user_search:
                         startActivity(new Intent(getApplicationContext(),UserSearch.class));
                         overridePendingTransition(0,0);
-                        return true;
+                        break;
                     case R.id.user_suggestions:
                         startActivity(new Intent(getApplicationContext(),UserSuggestions.class));
                         overridePendingTransition(0,0);
-                        return true;
+                        break;
                 }
                 return false;
             }
@@ -130,10 +128,13 @@ public class UserMainScreen extends AppCompatActivity {
             Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
             String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
             menu.setText(menu_text);
+            menu.setBackgroundResource(R.drawable.text_shape);
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
-            menu.setHeight(30);
+            menu.setHeight(20);
             menu.setWidth(900);
+
+
             ImageButton delete= new ImageButton(this);
             delete.setImageResource(R.drawable.ic_menu_delete);
             row.addView(menu);

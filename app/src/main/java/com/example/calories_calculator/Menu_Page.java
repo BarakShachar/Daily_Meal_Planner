@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -46,6 +48,8 @@ public class Menu_Page extends AppCompatActivity {
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
+    Button logout;
+    TextView meals;
     TextView hello;
     TableLayout table;
     String user_name; // the user name from previous screen
@@ -58,6 +62,11 @@ public class Menu_Page extends AppCompatActivity {
         setContentView(R.layout.activity_menu_page);
         menuName = (String) getIntent().getExtras().get("menu_name");
 //        user_name = (String) getIntent().getExtras().get("user_name");
+        logout = findViewById(R.id.logOut);
+        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+        logout.setOnClickListener(v -> Logout());
+        meals = findViewById(R.id.meals);
+        meals.setText(menuName + " Meals");
         addNewMeal = findViewById(R.id.addNewMeal);
         mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         bottomNavigationView = findViewById(R.id.bottomNavigation);
@@ -250,5 +259,10 @@ public class Menu_Page extends AppCompatActivity {
                         Log.w("main_activity", "Error writing user document", e);
                     }
                 });
+    }
+    public void Logout() {
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
     }
 }

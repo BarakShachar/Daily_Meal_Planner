@@ -63,6 +63,7 @@
         android:layout_below="@id/Password"
         android:layout_margin="10dp"
         android:text="Login"
+        android:background="@drawable/button_shape"
         android:backgroundTint="@color/green"
         android:textColor="@color/black"
         android:textAllCaps="true"

@@ -6,23 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".Menu_Page">
 
-    <TextView
-        android:id="@+id/Hello"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+    <Button
+        android:id="@+id/logOut"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_alignRight="@id/menu_page"
+        android:background="@drawable/ic_logout"
+        android:backgroundTint="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
     <TextView
         android:id="@+id/meals"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/Hello"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="105dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="50dp"
         android:padding="10dp"
@@ -35,8 +38,8 @@
 
     <FrameLayout
         android:id="@+id/menu_page"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/window"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,8 +85,8 @@
         android:id="@+id/addNewMeal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/window"
         android:layout_alignParentEnd="true"
+        android:layout_above="@+id/bottomNavigation"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="0dp"
         android:clickable="true"

@@ -10,4 +10,6 @@
     <item android:title="Suggestions"
         android:icon="@drawable/ic_suggestion"
         android:id="@+id/user_suggestions"/>
+
+
 </menu>

@@ -73,15 +73,13 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                     case R.id.user_home:
                         startActivity(new Intent(getApplicationContext(),UserMainScreen.class));
                         overridePendingTransition(0,0);
-                        return true;
+                        break;
                     case R.id.user_search:
-                        startActivity(new Intent(getApplicationContext(),UserSearch.class));
-                        overridePendingTransition(0,0);
-                        return true;
+                        break;
                     case R.id.user_suggestions:
                         startActivity(new Intent(getApplicationContext(),UserSuggestions.class));
                         overridePendingTransition(0,0);
-                        return true;
+                        break;
                 }
                 return false;
             }
