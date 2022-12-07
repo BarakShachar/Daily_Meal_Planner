@@ -6,8 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -31,42 +29,38 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class Menu_Page extends AppCompatActivity {
+public class UserAddProductToMeal extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Map<String, Object> userMeals = new HashMap<>();
     ArrayList<Button> mealButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
-    Button logout;
-    TextView meals;
+    boolean is_last = false;
     TextView hello;
     TableLayout table;
-    String user_name; // the user name from previous screen
-    String menuName; // from the previous screen
+    String userName; // the user name from previous screen
+    String mealName; // from the previous screen
+    String menuName; // the user name from previous screen
     String mail;
+    ArrayList<Map<String, Object>> userProducts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu_page);
+        setContentView(R.layout.activity_user_add_product_to_meal);
+        mealName = (String) getIntent().getExtras().get("meal_name");
         menuName = (String) getIntent().getExtras().get("menu_name");
-//        user_name = (String) getIntent().getExtras().get("user_name");
-        logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-        logout.setOnClickListener(v -> Logout());
-        meals = findViewById(R.id.meals);
-        meals.setText(menuName + " Meals");
+        userName = (String) getIntent().getExtras().get("user_name");
         addNewMeal = findViewById(R.id.addNewMeal);
         mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         bottomNavigationView = findViewById(R.id.bottomNavigation);
@@ -96,33 +90,44 @@ public class Menu_Page extends AppCompatActivity {
                 return false;
             }
         });
-        getUserMeals();
+        getUserProducts();
     }
 
     void mainFunction(){
-//        addName();
-        addMenusMeals();
+        System.out.println("here1");
+        addName();
+        addMealsProducts();
     }
 
     void addName(){
         hello = findViewById(R.id.Hello);
-        String hello_name = "Hello "+ user_name;
+        String hello_name = "Hello "+ userName;
         hello.setText(hello_name);
     }
 
 
-    void getUserMeals(){
-        db.collection("users/" + mail + "/menus/" + menuName + "/meals")
+    void getUserProducts(){
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        System.out.println(mealName);
+        db.collection("users/" + mail + "/menus/" + menuName + "/meals/").document(mealName)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("main_activity", "success get menus");
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                userMeals.put(document.getId(), document.getData());
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                                userProducts = (ArrayList<Map<String, Object>> ) document.getData().get("foods");
+                                for (int i = 0; i < userProducts.size(); i++) {
+                                    System.out.println("I'm in");
+                                    DocumentReference food = (DocumentReference) userProducts.get(i).get("food_ref");
+                                    if (i == userProducts.size() - 1) {
+                                        is_last = true;
+                                    }
+                                    getProductsCalories(food.getId(),i);
+                                }
                             }
-                            mainFunction();
                         } else {
                             Log.d("main_activity", "Error getting documents: ", task.getException());
                         }
@@ -130,57 +135,82 @@ public class Menu_Page extends AppCompatActivity {
                 });
     }
 
+    void getProductsCalories(String item, int place){
+        DocumentReference foods = db.collection("foods").document(item);
+        foods.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        System.out.println("here2");
+                        Map<String,Object> product = document.getData();
+                        userProducts.get(place).put("calories",product.get("calories"));
+                        if (is_last){
+                            mainFunction();
+                        }
+                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d("main_activity", "No such document");
+                    }
+                } else {
+                    Log.d("main_activity", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
 
-    void addMenusMeals(){
-        if (userMeals.isEmpty()) {
+    void addMealsProducts(){
+        if (userProducts.isEmpty()) {
+            System.out.println("empty");
             return;
         }
         table = (TableLayout) findViewById(R.id.mealTable);
-        for (Map.Entry<String,Object> entry : userMeals.entrySet()){
+        for (int i =0 ; i<userProducts.size(); i++){
+            HashMap<String,Object> product = (HashMap<String,Object>)userProducts.get(i);
             TableRow row = new TableRow(this);
-            table.addView(row);
-            Button meal = new Button(this);
-            meal.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
-            String meal_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            meal.setText(meal_text);
-            meal.setGravity(Gravity.CENTER);
-            meal.setTextSize(15);
-            meal.setHeight(30);
-            meal.setWidth(900);
+            TextView name = new TextView(this);
+            TextView amount = new TextView(this);
+            TextView calories = new TextView(this);
+            System.out.println(name);
+
+            name.setText(((DocumentReference)product.get("food_ref")).getId());
+            Long amount_ = (Long) product.get("quantity");
+            Long calories_ = ((Long) product.get("calories"))*amount_;
+            amount.setText(Long.toString(amount_));
+            calories.setText(Long.toString(calories_));
+            amount.setGravity(Gravity.CENTER);
+            amount.setTextSize(15);
+            name.setGravity(Gravity.CENTER);
+            name.setTextSize(15);
+            calories.setGravity(Gravity.CENTER);
+            calories.setTextSize(15);
+//            meal.setTextSize(15);
+//            meal.setHeight(30);
+//            meal.setWidth(900);
             ImageButton delete= new ImageButton(this);
             delete.setImageResource(R.drawable.ic_menu_delete);
-            row.addView(meal);
+            row.addView(name);
+            row.addView(calories);
+            row.addView(amount);
             row.addView(delete);
-            mealButtons.add(meal);
             deleteButtons.add(delete);
-            meal.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent in;
-                    in = new Intent(Menu_Page.this, UserAddProductToMeal.class);
-                    in.putExtra("user_name", user_name);
-                    in.putExtra("meal_name", entry.getKey());
-                    in.putExtra("menu_name", menuName);
-                    startActivity(in);
-                    finish();
-                }
-            });
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    removeMeal((String) meal.getTag());
+                    removeMeal((String) name.getText());
                     row.removeView(delete);
-                    row.removeView(meal);
+                    row.removeView(name);
                 }
             });
-
+            table.addView(row);
         }
+
     }
     void getMealNameFromUser(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Menu_Page.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserAddProductToMeal.this);
         alertDialog.setMessage("enter meal name");
-        final EditText editMeal = new EditText(Menu_Page.this);
+        final EditText editMeal = new EditText(UserAddProductToMeal.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -228,7 +258,7 @@ public class Menu_Page extends AppCompatActivity {
 
     void removeMeal(String meal_name){
         Long total_meal_cals = ((Long) userMeals.get("total_cals")) * -1;
-        db.collection("users/" + mail + "/menus/" + menuName + "/meals").document(meal_name)
+        db.collection("users/" + mail + "/menus/" + mealName + "/meals").document(meal_name)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -247,22 +277,20 @@ public class Menu_Page extends AppCompatActivity {
 
     void updateMenuTotalCals(Long total_meal_cals){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference menuDocRef = db.collection("users/" +mail+"/menus").document(menuName);
+        DocumentReference menuDocRef = db.collection("users/" +mail+"/menus").document(mealName);
         menuDocRef.update("total_cals", FieldValue.increment(total_meal_cals));
     }
 
     void addNewMeal(String meal_name){
         Map<String, Object> meal = new HashMap<>();
-        ArrayList<Map<String, Object>> foods = new ArrayList<>();
         meal.put("total_cals", 0);
-        meal.put("foods", foods);
-        db.collection("users/" + mail + "/menus/" + menuName + "/meals").document(meal_name)
+        db.collection("users/" + mail + "/menus/" + mealName + "/meals").document(meal_name)
                 .set(meal)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("main_activity", "user successfully written to DB!");
-                        getUserMeals();
+                        getUserProducts();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -271,10 +299,5 @@ public class Menu_Page extends AppCompatActivity {
                         Log.w("main_activity", "Error writing user document", e);
                     }
                 });
-    }
-    public void Logout() {
-        Intent intent = new Intent(this, Login.class);
-        startActivity(intent);
-        finish();
     }
 }

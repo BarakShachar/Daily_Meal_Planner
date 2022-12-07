@@ -21,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,10 +29,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -50,7 +45,8 @@ public class AdminUserMeals extends AppCompatActivity {
     TextView hello;
     TableLayout table;
     Button logout;
-    String user_name;
+    String userMail;
+    String adminName;
     ArrayList<Button> menuButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     Map<String, Object> user_menus = new HashMap<>();
@@ -59,7 +55,12 @@ public class AdminUserMeals extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_user_meals);
-
+        userMail = (String) getIntent().getExtras().get("user_mail");
+        adminName = (String) getIntent().getExtras().get("admin_name");
+        addNewMenu = findViewById(R.id.addNewMenu);
+        logout = findViewById(R.id.logOut);
+        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+        logout.setOnClickListener(v -> Logout());
         bottomNavigationView = findViewById(R.id.AdminBottomNavigation);
         addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,6 +84,7 @@ public class AdminUserMeals extends AppCompatActivity {
                 return false;
             }
         });
+        getUserMenus();
     }
     void mainFunction(){
         addName();
@@ -140,8 +142,9 @@ public class AdminUserMeals extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent in;
                     in = new Intent(AdminUserMeals.this, Menu_Page.class);
-                    in.putExtra("menu_name", (String) menu.getTag());
-                    in.putExtra("user_name", user_name);
+                    in.putExtra("menu_mail", (String) menu.getTag());
+                    in.putExtra("admin_name", adminName);
+                    in.putExtra("user_mail", userMail);
                     startActivity(in);
                     finish();
                 }
@@ -183,39 +186,14 @@ public class AdminUserMeals extends AppCompatActivity {
 
     void addName(){
         hello = findViewById(R.id.Hello);
-        String hello_name = "Hello "+ user_name;
+        String hello_name = "Hello "+ adminName;
         hello.setText(hello_name);
-    }
-
-
-    void AdminRequest(String admin_mail){
-        String user_mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference user = db.collection("users").document(user_mail);
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(AdminUserMeals.this);
-        alertDialog.setMessage("Admin: " + admin_mail + " Wants to add you to their users.");
-        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                DocumentReference admin = db.collection("users").document(admin_mail);
-                admin.update("users", FieldValue.arrayUnion(user));
-                user.update("admin_ref", admin);
-                user.update("message", FieldValue.delete());
-                dialogInterface.dismiss();
-            }
-        });
-        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                user.update("message", FieldValue.delete());
-                dialogInterface.dismiss();
-            }
-        });
-        alertDialog.show();
+        TextView title = findViewById(R.id.user_menu);
+        title.setText("User" + userMail + "menus");
     }
 
     void getUserMenus(){
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        db.collection("users/" + mail + "/menus")
+        db.collection("users/" + userMail + "/menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -234,8 +212,7 @@ public class AdminUserMeals extends AppCompatActivity {
     }
 
     void remove_menu(String menu_name){
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        db.collection("users/" + mail + "/menus").document(menu_name)
+        db.collection("users/" + userMail + "/menus").document(menu_name)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -252,10 +229,9 @@ public class AdminUserMeals extends AppCompatActivity {
     }
 
     void addNewMenu(String menu_name){
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         Map<String, Object> menu = new HashMap<>();
         menu.put("total_cals", 0);
-        db.collection("users/" + mail + "/menus").document(menu_name)
+        db.collection("users/" + userMail + "/menus").document(menu_name)
                 .set(menu)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -270,6 +246,12 @@ public class AdminUserMeals extends AppCompatActivity {
                         Log.w("main_activity", "Error writing user document", e);
                     }
                 });
+    }
+
+    public void Logout() {
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
     }
 }
 

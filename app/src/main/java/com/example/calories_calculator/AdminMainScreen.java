@@ -130,9 +130,9 @@ public class AdminMainScreen extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Intent in;
-                    in = new Intent(AdminMainScreen.this, Menu_Page.class);
-                    in.putExtra("menu_name", (String) user.getTag());
-                    in.putExtra("user_name", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                    in = new Intent(AdminMainScreen.this, AdminUserMeals.class);
+                    in.putExtra("user_mail", (String) user.getTag());
+                    in.putExtra("admin_name", adminName);
                     startActivity(in);
                     finish();
                 }
