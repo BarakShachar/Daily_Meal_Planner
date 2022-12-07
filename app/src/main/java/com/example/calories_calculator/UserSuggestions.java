@@ -1,7 +1,10 @@
 package com.example.calories_calculator;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,11 +12,15 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -59,6 +66,7 @@ public class UserSuggestions extends AppCompatActivity {
                 return false;
             }
         });
+        getGeneralSuggestionMenus();
         getUserData();
     }
 
@@ -87,7 +95,7 @@ public class UserSuggestions extends AppCompatActivity {
             add.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    TODO: add dropdown menu
+                    getMenuNameFromUser((String) menu.getTag());
                 }
             });
             menu.setOnClickListener(new View.OnClickListener() {
@@ -103,6 +111,50 @@ public class UserSuggestions extends AppCompatActivity {
         }
     }
 
+    void getMenuNameFromUser(String selected_menu){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestions.this);
+        alertDialog.setMessage("enter the menu name");
+        final EditText editMeal = new EditText(UserSuggestions.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        editMeal.setLayoutParams(lp);
+        alertDialog.setView(editMeal);
+        alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String menu_name = editMeal.getText().toString();
+                addToUserMenu(menu_name, (Map<String, Object>) suggestion_menus.get(selected_menu));
+            }
+        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialog.show();
+    }
+
+    void addToUserMenu(String menu_name, Map<String, Object> meal_data) {
+        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        db.collection("users/" + mail + "/menus/").document(menu_name)
+                .set(meal_data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("main_activity", "user successfully written to DB!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("main_activity", "Error writing user document", e);
+                    }
+                });
+    }
+
     void getUserData(){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         DocumentReference docRef = db.collection("users").document(mail);
@@ -115,7 +167,12 @@ public class UserSuggestions extends AppCompatActivity {
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
                         user_name = (String) document.getData().get("name");
                         admin_ref = (DocumentReference) document.getData().get("admin_ref");
-                        getGeneralSuggestionMenus();
+                        if (admin_ref!= null){
+                            getAdminSuggestionMenus();
+                        }
+                        else{
+                            addMeals();
+                        }
                     } else {
                         Log.d("main_activity", "No such document");
                     }
@@ -136,12 +193,6 @@ public class UserSuggestions extends AppCompatActivity {
                             Log.d("main_activity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 suggestion_menus.put(document.getId(), document.getData());
-                            }
-                            if (admin_ref!= null){
-                                getAdminSuggestionMenus();
-                            }
-                            else{
-                                addMeals();
                             }
                         } else {
                             Log.d("main_activity", "Error getting documents: ", task.getException());

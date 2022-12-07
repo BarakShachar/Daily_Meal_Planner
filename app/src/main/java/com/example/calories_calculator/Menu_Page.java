@@ -232,7 +232,9 @@ public class Menu_Page extends AppCompatActivity {
 
     void addNewMeal(String meal_name){
         Map<String, Object> meal = new HashMap<>();
+        ArrayList<Map<String, Object>> foods = new ArrayList<>();
         meal.put("total_cals", 0);
+        meal.put("foods", foods);
         db.collection("users/" + mail + "/menus/" + menuName + "/meals").document(meal_name)
                 .set(meal)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

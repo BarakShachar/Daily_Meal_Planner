@@ -127,14 +127,14 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                getMenuNameFromUser((String) menuItem.getTitle(), selected_meal);
+                getMealNameFromUser((String) menuItem.getTitle(), selected_meal);
 
                 return true;
             }
         });
     }
 
-    void getMenuNameFromUser(String menu_name, String selected_meal){
+    void getMealNameFromUser(String menu_name, String selected_meal){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestionsMenu.this);
         alertDialog.setMessage("enter the meal name");
         final EditText editMeal = new EditText(UserSuggestionsMenu.this);
