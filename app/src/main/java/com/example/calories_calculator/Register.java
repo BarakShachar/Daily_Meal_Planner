@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -28,8 +29,7 @@ import java.util.Map;
 
 public class Register extends AppCompatActivity {
 
-    EditText usernameEditText, emailEditText, passwordEditText,
-            birthdayEditText, heightEditText, weightEditText;
+    EditText usernameEditText, emailEditText, passwordEditText,confirmPassword;
     Button register_button, back;
     ProgressBar progressBar;
 
@@ -44,9 +44,9 @@ public class Register extends AppCompatActivity {
         usernameEditText = findViewById(R.id.Register_username);
         emailEditText = findViewById(R.id.Register_email);
         passwordEditText = findViewById(R.id.Register_password);
-        birthdayEditText = findViewById(R.id.Register_birthday);
-        heightEditText = findViewById(R.id.Register_height);
-        weightEditText = findViewById(R.id.Register_weight);
+        passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        confirmPassword = findViewById(R.id.Repeat_password);
+        confirmPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
         register_button = (Button) findViewById(R.id.Register_button);
         progressBar = findViewById(R.id.progressBar);
         register_button.setOnClickListener(v -> createAccount());
@@ -55,23 +55,16 @@ public class Register extends AppCompatActivity {
         String username = usernameEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
-        int height = 0;
-        int weight = 0;
-        if (!heightEditText.getText().toString().equals("")){
-            height = Integer.parseInt(heightEditText.getText().toString());
-        }
-        if (!weightEditText.getText().toString().equals("")){
-            weight = Integer.parseInt(weightEditText.getText().toString());
-        }
+        String confirm = confirmPassword.getText().toString();
 
-        boolean isValid = validateData(username, email, password, height, weight);
+        boolean isValid = validateData(username, email, password, confirm);
         if(!isValid){ return;}
 
-        createAccountInFirebase(username, email, password, height, weight);
+        createAccountInFirebase(username, email, password);
 
 
     }
-      boolean validateData(String username, String email, String password, int height, int weight){
+      boolean validateData(String username, String email, String password,String confirm){
         // validate the data we got from the user.
           boolean valid_data = true;
           if(username.isEmpty()){
@@ -87,18 +80,18 @@ public class Register extends AppCompatActivity {
               passwordEditText.setError("Password length is invalid");
               valid_data = false;
           }
-          if (height <= 0){
-              heightEditText.setError("invalid height");
+          if (confirm.length() <6){
+              confirmPassword.setError("Password length is invalid");
               valid_data = false;
           }
-          if (weight <= 0){
-              weightEditText.setError("invalid weight");
+          if (!password.equals(confirm)){
+              confirmPassword.setError("the password isn't equal");
               valid_data = false;
           }
           return valid_data;
     }
 
-    void createAccountInFirebase(String username, String email, String password, int height, int weight){
+    void createAccountInFirebase(String username, String email, String password){
         changeInProgress(true);
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(Register.this, new OnCompleteListener<AuthResult>() {
@@ -107,7 +100,7 @@ public class Register extends AppCompatActivity {
                 changeInProgress(false);
                 if(task.isSuccessful()){ //creating account is done
                   firebaseAuth.signOut();
-                  createAccountInFirebaseDB(username, email, height, weight);
+                  createAccountInFirebaseDB(username, email);
                   Toast.makeText(Register.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
                   main_screen();
               } else{ // failure while creating the account
@@ -117,12 +110,10 @@ public class Register extends AppCompatActivity {
         });
     }
 
-    void createAccountInFirebaseDB(String username, String email, int height, int weight){
+    void createAccountInFirebaseDB(String username, String email){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> user = new HashMap<>();
         user.put("name", username);
-        user.put("height", height);
-        user.put("weight", weight);
         user.put("is_admin", false);
         user.put("admin_mail", null);
         user.put("menus", new HashMap<>());

@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -22,7 +24,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Login extends AppCompatActivity {
-    TextView emailEditText, passwordEditText, signUpBtnEditText;
+    TextView emailEditText, passwordEditText, signUpBtnEditText, forgotPassword;
     Button login_button;
     ProgressBar loginProgressBar;
 
@@ -32,11 +34,13 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         emailEditText = findViewById(R.id.Username);
         passwordEditText = findViewById(R.id.Password);
+        passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
         login_button = findViewById(R.id.Login_button);
         signUpBtnEditText = findViewById(R.id.Sign_up);
         loginProgressBar = findViewById(R.id.progressBarLogin);
-
         login_button.setOnClickListener((v) -> loginUser());
+        forgotPassword = findViewById(R.id.forgot_password);
+        forgotPassword.setOnClickListener((v)-> resend_password());
         signUpBtnEditText.setOnClickListener((v) -> signUpAction());
     }
 
@@ -48,6 +52,21 @@ public class Login extends AppCompatActivity {
             return;
         }
         logInUserInFirebase(email, password);
+    }
+
+    void resend_password(){
+        String email = emailEditText.getText().toString();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(Login.this, "We have sent you instructions to reset your password!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(Login.this, "Failed to send reset email!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     void signUpAction(){
