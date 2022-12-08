@@ -142,6 +142,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         if (products.isEmpty()) {
             return;
         }
+        System.out.println(products.size());
         table = (TableLayout) findViewById(R.id.product_table);
         for (Map.Entry<String, HashMap<String, Object>> entry : products.entrySet()){
             TableRow row = new TableRow(this);
