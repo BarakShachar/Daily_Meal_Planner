@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -64,12 +65,6 @@ public class UserAddProductToMeal extends AppCompatActivity {
         addNewMeal = findViewById(R.id.addNewMeal);
         mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         bottomNavigationView = findViewById(R.id.bottomNavigation);
-        addNewMeal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getMealNameFromUser();
-            }
-        });
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
@@ -123,9 +118,11 @@ public class UserAddProductToMeal extends AppCompatActivity {
                                     System.out.println("I'm in");
                                     DocumentReference food = (DocumentReference) userProducts.get(i).get("food_ref");
                                     if (i == userProducts.size() - 1) {
-                                        is_last = true;
+                                        getProductsCalories(food.getId(),i, true);
+                                    } else {
+                                        getProductsCalories(food.getId(),i,false);
                                     }
-                                    getProductsCalories(food.getId(),i);
+
                                 }
                             }
                         } else {
@@ -135,7 +132,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
                 });
     }
 
-    void getProductsCalories(String item, int place){
+    void getProductsCalories(String item, int place,boolean last){
         DocumentReference foods = db.collection("foods").document(item);
         foods.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -143,10 +140,9 @@ public class UserAddProductToMeal extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        System.out.println("here2");
                         Map<String,Object> product = document.getData();
                         userProducts.get(place).put("calories",product.get("calories"));
-                        if (is_last){
+                        if (last){
                             mainFunction();
                         }
                         Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
@@ -172,11 +168,11 @@ public class UserAddProductToMeal extends AppCompatActivity {
             TextView name = new TextView(this);
             TextView amount = new TextView(this);
             TextView calories = new TextView(this);
-            System.out.println(name);
 
             name.setText(((DocumentReference)product.get("food_ref")).getId());
             Long amount_ = (Long) product.get("quantity");
             Long calories_ = ((Long) product.get("calories"))*amount_;
+            System.out.println(calories_);
             amount.setText(Long.toString(amount_));
             calories.setText(Long.toString(calories_));
             amount.setGravity(Gravity.CENTER);
@@ -195,38 +191,58 @@ public class UserAddProductToMeal extends AppCompatActivity {
             row.addView(amount);
             row.addView(delete);
             deleteButtons.add(delete);
+            ImageButton edit= new ImageButton(this);
+            edit.setImageResource(R.drawable.ic_edit);
+            table.addView(row);
+            row.addView(edit);
+
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    removeMeal((String) name.getText());
+                    removeProduct((String) name.getText(),amount_,calories_);
                     row.removeView(delete);
                     row.removeView(name);
+                    row.removeView(amount);
+                    row.removeView(calories);
                 }
             });
-            table.addView(row);
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    editAmount((String) name.getText(),amount_,(Long) product.get("calories"));
+                    row.removeView(delete);
+                    row.removeView(name);
+                    row.removeView(amount);
+                    row.removeView(calories);
+                }
+            });
+
         }
 
     }
-    void getMealNameFromUser(){
+
+    void editAmount(String productName, Long oldAmount,Long calories){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserAddProductToMeal.this);
-        alertDialog.setMessage("enter meal name");
-        final EditText editMeal = new EditText(UserAddProductToMeal.this);
+        alertDialog.setMessage("Enter the amount");
+        final EditText editMenu = new EditText(UserAddProductToMeal.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
         );
-        editMeal.setLayoutParams(lp);
-        alertDialog.setView(editMeal);
+        editMenu.setLayoutParams(lp);
+        alertDialog.setView(editMenu);
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String meal_name = editMeal.getText().toString().toLowerCase(Locale.ROOT);
-                if (userMeals.containsKey(meal_name)){
+                String amount = editMenu.getText().toString().toLowerCase(Locale.ROOT);
+                if (Integer.parseInt(amount) ==0){
                     dialogInterface.dismiss();
+                    removeProduct(productName,oldAmount,calories);
                 }
                 else {
-                    removeExistingMeals();
-                    addNewMeal(meal_name);
+                    addAmountProduct(productName,Long.parseLong(amount),oldAmount,calories);
+
+
                 }
             }
         });
@@ -239,65 +255,51 @@ public class UserAddProductToMeal extends AppCompatActivity {
         alertDialog.show();
     }
 
-    void removeExistingMeals(){
-        for (int i=0; i<mealButtons.size(); i++){
-            ViewGroup layout = (ViewGroup) mealButtons.get(i).getParent();
-            if(null!=layout) //for safety only  as you are doing onClick
-                layout.removeView(mealButtons.get(i));
-        }
-        for (int i=0; i<deleteButtons.size(); i++){
-            ViewGroup layout = (ViewGroup) deleteButtons.get(i).getParent();
-            if(null!=layout) //for safety only  as you are doing onClick
-                layout.removeView(deleteButtons.get(i));
-        }
-        mealButtons.clear();
-        deleteButtons.clear();
-        userMeals.clear();
+    void addAmountProduct(String productName,Long new_amount,Long old_amount, Long calories){
+        DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
+        DocumentReference itemRef = db.collection("foods").document(productName);
+        Map<String, Object> newItem = new HashMap<>();
+        System.out.println(old_amount);
+        System.out.println(new_amount);
+        newItem.put("food_ref", itemRef);
+        newItem.put("quantity",old_amount.intValue());
+        docRef.update("foods", FieldValue.arrayRemove(newItem));
+        newItem.clear();
+        newItem.put("food_ref", itemRef);
+        newItem.put("quantity", new_amount.intValue());
+        docRef.update("foods", FieldValue.arrayUnion(newItem));
+        Long totalAddCals = new_amount*calories;
+        docRef.update("total_cals", FieldValue.increment(totalAddCals));
+        docRef.getParent().getParent().update("total_cals", FieldValue.increment(totalAddCals));
+        Toast.makeText(UserAddProductToMeal.this, new_amount + " " +productName +" added to your meal", Toast.LENGTH_SHORT).show();
+        userProducts.clear();
+        getUserProducts();
+
+    }
+
+    void removeProduct(String productName,Long old_amount, Long calories){
+        DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
+        DocumentReference itemRef = db.collection("foods").document(productName);
+        Map<String, Object> newItem = new HashMap<>();
+        newItem.put("food_ref", itemRef);
+        newItem.put("quantity",old_amount.intValue());
+        docRef.update("foods", FieldValue.arrayRemove(newItem));
+        Long totalAddCals = (-1)*calories;
+        docRef.update("total_cals", FieldValue.increment(totalAddCals));
+        docRef.getParent().getParent().update("total_cals", FieldValue.increment(totalAddCals));
+        Toast.makeText(UserAddProductToMeal.this, old_amount + " " +productName +" added to your meal", Toast.LENGTH_SHORT).show();
+        userProducts.clear();
+        getUserProducts();
+
     }
 
 
-    void removeMeal(String meal_name){
-        Long total_meal_cals = ((Long) userMeals.get("total_cals")) * -1;
-        db.collection("users/" + mail + "/menus/" + mealName + "/meals").document(meal_name)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "DocumentSnapshot successfully deleted!");
-                        updateMenuTotalCals(total_meal_cals);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error deleting document", e);
-                    }
-                });
-    }
 
-    void updateMenuTotalCals(Long total_meal_cals){
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference menuDocRef = db.collection("users/" +mail+"/menus").document(mealName);
-        menuDocRef.update("total_cals", FieldValue.increment(total_meal_cals));
-    }
 
-    void addNewMeal(String meal_name){
-        Map<String, Object> meal = new HashMap<>();
-        meal.put("total_cals", 0);
-        db.collection("users/" + mail + "/menus/" + mealName + "/meals").document(meal_name)
-                .set(meal)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "user successfully written to DB!");
-                        getUserProducts();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error writing user document", e);
-                    }
-                });
-    }
+
+
+
+
+
+
 }
