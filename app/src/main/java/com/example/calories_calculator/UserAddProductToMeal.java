@@ -140,6 +140,11 @@ public class UserAddProductToMeal extends AppCompatActivity {
             return;
         }
         table = (TableLayout) findViewById(R.id.mealTable);
+        int count = table.getChildCount();
+        for (int i = 2; i < count; i++) {
+            View child = table.getChildAt(i);
+            if (child instanceof TableRow) ((ViewGroup) child).removeAllViews();
+        }
         for (int i =0 ; i<userProducts.size(); i++){
             HashMap<String,Object> product = (HashMap<String,Object>)userProducts.get(i);
             TableRow row = new TableRow(this);
@@ -167,9 +172,8 @@ public class UserAddProductToMeal extends AppCompatActivity {
             deleteButtons.add(delete);
             ImageButton edit= new ImageButton(this);
             edit.setImageResource(R.drawable.ic_edit);
-            table.addView(row);
             row.addView(edit);
-
+            table.addView(row);
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -178,6 +182,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
                     row.removeView(name);
                     row.removeView(amount);
                     row.removeView(calories);
+                    row.removeView(edit);
                 }
             });
             edit.setOnClickListener(new View.OnClickListener() {
@@ -188,6 +193,8 @@ public class UserAddProductToMeal extends AppCompatActivity {
                     row.removeView(name);
                     row.removeView(amount);
                     row.removeView(calories);
+                    row.removeView(edit);
+
                 }
             });
 
@@ -242,7 +249,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
         Long totalAddCals = caloriesPerOne*new_amount - calories;
         docRef.update("total_cals", FieldValue.increment(totalAddCals));
         docRef.getParent().getParent().update("total_cals", FieldValue.increment(totalAddCals));
-        Toast.makeText(UserAddProductToMeal.this, productName +"updated to " + new_amount + " in your meal", Toast.LENGTH_SHORT).show();
+        Toast.makeText(UserAddProductToMeal.this, productName +" amount updated to " + new_amount + " in your meal", Toast.LENGTH_SHORT).show();
         userProducts.clear();
         getUserProducts();
     }
@@ -260,6 +267,5 @@ public class UserAddProductToMeal extends AppCompatActivity {
         Toast.makeText(UserAddProductToMeal.this, old_amount + " " +productName +" removed from your meal", Toast.LENGTH_SHORT).show();
         userProducts.clear();
         getUserProducts();
-        //no need to load from start
     }
 }
