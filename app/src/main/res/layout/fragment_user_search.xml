@@ -40,59 +40,95 @@
         android:layout_marginStart="50dp"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="50dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="20dp"
         android:textStyle="bold"
         android:textColor="#009688"
         android:gravity="center"
         />
-<EditText
-    android:id="@+id/search_bar"
+
+<LinearLayout
+    android:id="@+id/first_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@id/search_cover"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="50dp"
-    android:layout_marginBottom="5dp"
-    android:background="@drawable/text_shape"
-    android:hint="Search"
-    android:padding="20dp"
-    android:singleLine="true" />
+    android:layout_below="@+id/search_cover"
+    android:layout_marginBottom="10dp"
+    android:weightSum="3">
 
     <Button
         android:id="@+id/vegetables"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/search_bar"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:text="vegetables">
-    </Button>
+        android:layout_weight = "1"
+        android:background="@drawable/button_shape"
+        android:backgroundTint="@color/green"
+        android:textStyle="bold"
+        android:text="vegetables"></Button>
 
     <Button
         android:id="@+id/fruits"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/search_bar"
-        android:layout_marginStart="170dp"
-        android:layout_marginTop="20dp"
-        android:text="fruits">
-    </Button>
+        android:layout_weight = "1"
+        android:background="@drawable/button_shape"
+        android:backgroundTint="#FFD54F"
+        android:text="fruits"
+        android:textStyle="bold"></Button>
 
     <Button
-    android:id="@+id/dairy"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/search_bar"
-    android:layout_marginStart="280dp"
-    android:layout_marginTop="20dp"
-    android:text="dairy">
-</Button>
+        android:id="@+id/dairy"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight = "1"
+        android:background="@drawable/button_shape"
+        android:backgroundTint="#FFEE58"
+        android:text="dairy"
+        android:textStyle="bold"></Button>
+</LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/second_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/first_row"
+        android:weightSum="3">
+
+    <Button
+        android:id="@+id/meat_and_fish"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight = "1"
+        android:background="@drawable/button_shape"
+        android:backgroundTint="#EF5350"
+        android:text="meat/fish"
+        android:textStyle="bold"></Button>
+
+    <Button
+        android:id="@+id/cereal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight = "1"
+        android:background="@drawable/button_shape"
+        android:backgroundTint="#FFB74D"
+        android:text="cereal"
+        android:textStyle="bold"></Button>
+
+    <Button
+        android:id="@+id/breads"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight = "1"
+        android:background="@drawable/button_shape"
+        android:backgroundTint="#FCA286"
+        android:text="breads"
+        android:textStyle="bold"></Button>
+    </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:background="@color/white"
         app:menu="@menu/user_menu">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
@@ -102,11 +138,9 @@
         android:id="@+id/window"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/dairy"
+        android:layout_below="@id/second_row"
         android:layout_marginTop="20dp"
-        android:layout_above="@+id/bottomNavigation"
-
-        >
+        android:layout_above="@+id/bottomNavigation">
 
         <ScrollView
             android:id="@+id/Scroll"

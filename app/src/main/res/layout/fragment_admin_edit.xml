@@ -36,6 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         app:layout_constraintStart_toEndOf="@+id/admin_frame"
+        android:background="@color/white"
         app:menu="@menu/admin_menu">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
