@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -39,12 +41,16 @@ public class UserSuggestions extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     Map<String, Object> suggestion_menus = new HashMap<>();
     TableLayout table;
+    Button logout;
     DocumentReference admin_ref = null;
     String user_name;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_user_suggestions);
+        logout = findViewById(R.id.logOut);
+        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+        logout.setOnClickListener(v -> Logout());
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -218,6 +224,12 @@ public class UserSuggestions extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    public void Logout() {
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
     }
 
 }
