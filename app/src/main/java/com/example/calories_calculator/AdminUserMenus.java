@@ -29,9 +29,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -41,41 +38,34 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class AdminUserMeals extends AppCompatActivity {
+public class AdminUserMenus extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    Map<String, Object> userMeals = new HashMap<>();
-    ArrayList<Button> mealButtons = new ArrayList<>();
-    ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
-    FloatingActionButton addNewMeal;
-    Button logout;
-    TextView meals;
+    FloatingActionButton addNewMenu;
     TextView hello;
     TableLayout table;
+    Button logout;
     String userMail;
     String adminName;
-    String menuName; // from the previous screen
-    String mail;
+    ArrayList<Button> menuButtons = new ArrayList<>();
+    ArrayList<ImageButton> deleteButtons = new ArrayList<>();
+    Map<String, Object> user_menus = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_user_meals);
-        menuName = (String) getIntent().getExtras().get("menu_name");
-        adminName = (String) getIntent().getExtras().get("admin_name");
-        userMail = (String) getIntent().getExtras().get("user_mail");
+        setContentView(R.layout.activity_admin_user_menus);
+        userMail = (String) getIntent().getExtras().get("userMail");
+        adminName = (String) getIntent().getExtras().get("adminName");
+        addNewMenu = findViewById(R.id.addNewMenu);
         logout = findViewById(R.id.logOut);
         logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
-        meals = findViewById(R.id.meals);
-        meals.setText(menuName + " Meals");
-        addNewMeal = findViewById(R.id.addNewMeals);
-        mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         bottomNavigationView = findViewById(R.id.AdminBottomNavigation);
-        addNewMeal.setOnClickListener(new View.OnClickListener() {
+        addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getMealNameFromUser();
+                getMenuNameFromUser();
             }
         });
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -94,102 +84,94 @@ public class AdminUserMeals extends AppCompatActivity {
                 return false;
             }
         });
-        getUserMeals();
+        getUserMenus();
+    }
+    void mainFunction(){
+        addName();
+        addMenus();
+    }
+    void removeExistingMenus(){
+        for (int i=0; i<menuButtons.size(); i++){
+            ViewGroup layout = (ViewGroup) menuButtons.get(i).getParent();
+            if(null!=layout) //for safety only  as you are doing onClick
+                layout.removeView(menuButtons.get(i));
+        }
+        for (int i=0; i<deleteButtons.size(); i++){
+            ViewGroup layout = (ViewGroup) deleteButtons.get(i).getParent();
+            if(null!=layout) //for safety only  as you are doing onClick
+                layout.removeView(deleteButtons.get(i));
+        }
+        menuButtons.clear();
+        deleteButtons.clear();
+        user_menus.clear();
     }
 
-    void mainFunction() {
-//        addName();
-        addMenusMeals();
-    }
-
-    void getUserMeals(){
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("main_activity", "success get menus");
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                userMeals.put(document.getId(), document.getData());
-                            }
-                            mainFunction();
-                        } else {
-                            Log.d("main_activity", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-
-    void addMenusMeals(){
-        if (userMeals.isEmpty()) {
+    void addMenus(){
+        if (user_menus.isEmpty()) {
             return;
         }
         table = (TableLayout) findViewById(R.id.Table);
-        for (Map.Entry<String,Object> entry : userMeals.entrySet()){
+        for (Map.Entry<String,Object> entry : user_menus.entrySet()){
             TableRow row = new TableRow(this);
             table.addView(row);
-            Button meal = new Button(this);
-            meal.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
-            String meal_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            meal.setText(meal_text);
-            meal.setGravity(Gravity.CENTER);
-            meal.setTextSize(15);
-            meal.setHeight(30);
-            meal.setWidth(900);
+            Button menu = new Button(this);
+            menu.setTag(entry.getKey());
+            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
+            String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
+            menu.setText(menu_text);
+            menu.setGravity(Gravity.CENTER);
+            menu.setTextSize(15);
+            menu.setHeight(30);
+            menu.setWidth(900);
             ImageButton delete= new ImageButton(this);
             delete.setImageResource(R.drawable.ic_menu_delete);
-            row.addView(meal);
+            row.addView(menu);
             row.addView(delete);
-            mealButtons.add(meal);
+            menuButtons.add(menu);
             deleteButtons.add(delete);
-            meal.setOnClickListener(new View.OnClickListener() {
+            delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    remove_menu((String) menu.getTag());
+                    row.removeView(delete);
+                    row.removeView(menu);
+                }
+            });
+            menu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     Intent in;
-                    in = new Intent(AdminUserMeals.this, AdminUserEditProducts.class);
+                    in = new Intent(AdminUserMenus.this, AdminUserMeals.class);
+                    in.putExtra("menu_name", (String) menu.getTag());
                     in.putExtra("admin_name", adminName);
                     in.putExtra("user_mail", userMail);
-                    in.putExtra("meal_name", entry.getKey());
-                    in.putExtra("menu_name", menuName);
-                    in.putExtra("is_admin", false);
                     startActivity(in);
                     finish();
                 }
             });
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    removeMeal((String) meal.getTag());
-                    row.removeView(delete);
-                    row.removeView(meal);
-                }
-            });
-
         }
     }
-    void getMealNameFromUser(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(AdminUserMeals.this);
-        alertDialog.setMessage("enter meal name");
-        final EditText editMeal = new EditText(AdminUserMeals.this);
+
+    void getMenuNameFromUser(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(AdminUserMenus.this);
+        alertDialog.setMessage("enter menu name");
+        final EditText editMenu = new EditText(AdminUserMenus.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
         );
-        editMeal.setLayoutParams(lp);
-        alertDialog.setView(editMeal);
+        editMenu.setLayoutParams(lp);
+        alertDialog.setView(editMenu);
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String meal_name = editMeal.getText().toString().toLowerCase(Locale.ROOT);
-                if (userMeals.containsKey(meal_name)){
+                String menu_name = editMenu.getText().toString().toLowerCase(Locale.ROOT);
+                if (user_menus.containsKey(menu_name)){
                     dialogInterface.dismiss();
                 }
                 else {
-                    removeExistingMeals();
-                    addNewMeal(meal_name);
+                    removeExistingMenus();
+                    addNewMenu(menu_name);
                 }
             }
         });
@@ -202,32 +184,40 @@ public class AdminUserMeals extends AppCompatActivity {
         alertDialog.show();
     }
 
-    void removeExistingMeals(){
-        for (int i=0; i<mealButtons.size(); i++){
-            ViewGroup layout = (ViewGroup) mealButtons.get(i).getParent();
-            if(null!=layout) //for safety only  as you are doing onClick
-                layout.removeView(mealButtons.get(i));
-        }
-        for (int i=0; i<deleteButtons.size(); i++){
-            ViewGroup layout = (ViewGroup) deleteButtons.get(i).getParent();
-            if(null!=layout) //for safety only  as you are doing onClick
-                layout.removeView(deleteButtons.get(i));
-        }
-        mealButtons.clear();
-        deleteButtons.clear();
-        userMeals.clear();
+    void addName(){
+        hello = findViewById(R.id.Hello);
+        String hello_name = "Hello "+ adminName;
+        hello.setText(hello_name);
+        TextView title = findViewById(R.id.user_menu);
+        title.setText("User" + userMail + "menus");
     }
 
+    void getUserMenus(){
+        db.collection("users/" + userMail + "/menus")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("main_activity", "success get menus");
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                user_menus.put(document.getId(), document.getData());
+                            }
+                            mainFunction();
+                        } else {
+                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
 
-    void removeMeal(String meal_name){
-        Long total_meal_cals = ((Long) userMeals.get("totalCals")) * -1;
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(meal_name)
+    void remove_menu(String menu_name){
+        db.collection("users/" + userMail + "/menus").document(menu_name)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("main_activity", "DocumentSnapshot successfully deleted!");
-                        updateMenuTotalCals(total_meal_cals);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -238,23 +228,16 @@ public class AdminUserMeals extends AppCompatActivity {
                 });
     }
 
-    void updateMenuTotalCals(Long total_meal_cals){
-        DocumentReference menuDocRef = db.collection("users/" +userMail+"/menus").document(menuName);
-        menuDocRef.update("totalCals", FieldValue.increment(total_meal_cals));
-    }
-
-    void addNewMeal(String meal_name){
-        Map<String, Object> meal = new HashMap<>();
-        ArrayList<Map<String, Object>> foods = new ArrayList<>();
-        meal.put("totalCals", 0);
-        meal.put("foods", foods);
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(meal_name)
-                .set(meal)
+    void addNewMenu(String menu_name){
+        Map<String, Object> menu = new HashMap<>();
+        menu.put("total_cals", 0);
+        db.collection("users/" + userMail + "/menus").document(menu_name)
+                .set(menu)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("main_activity", "user successfully written to DB!");
-                        getUserMeals();
+                        getUserMenus();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -264,9 +247,11 @@ public class AdminUserMeals extends AppCompatActivity {
                     }
                 });
     }
+
     public void Logout() {
         Intent intent = new Intent(this, Login.class);
         startActivity(intent);
         finish();
     }
 }
+

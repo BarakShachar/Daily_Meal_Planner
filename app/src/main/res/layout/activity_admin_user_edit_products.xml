@@ -4,21 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AdminUserMeals">
-
-
-    <Button
-        android:id="@+id/logOut"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_alignRight="@id/admin_frame"
-        android:background="@android:drawable/ic_lock_power_off"
-        android:backgroundTint="@color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    tools:context=".AdminUserEditProducts">
 
     <TextView
         android:id="@+id/Hello"
@@ -34,12 +20,13 @@
         android:id="@+id/meals"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/Hello"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="105dp"
+        android:layout_marginTop="25dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="50dp"
         android:padding="10dp"
-        android:text="Meals"
+        android:text="Products"
         android:textSize="35dp"
         android:textStyle="bold"
         android:textColor="#009688"
@@ -47,35 +34,33 @@
         />
 
     <FrameLayout
-        android:id="@+id/admin_frame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/menu_page"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_below="@id/window"
-        app:layout_constraintBottom_toTopOf="@+id/AdminBottomNavigation"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
     </FrameLayout>
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/AdminBottomNavigation"
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         android:background="@color/white"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         app:menu="@menu/admin_menu">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        app:layout_behavior="android.support.constraint.ConstraintLayout"
         android:id="@+id/window"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/meals"
-        >
+        app:layout_behavior="android.support.constraint.ConstraintLayout"
+        android:layout_below="@id/meals">
 
         <ScrollView
             android:id="@+id/Scroll"
@@ -87,17 +72,37 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TableLayout
-                android:id="@+id/Table"
+                android:id="@+id/mealTable"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-
+                <TableRow>
+                    <TextView
+                        android:id="@+id/product_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="25dp"
+                        android:text="Name" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="25dp"
+                        android:layout_marginLeft="25dp"
+                        android:text="Calories"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="25dp"
+                        android:layout_marginLeft="25dp"
+                        android:text="Amount"/>
+                </TableRow>
             </TableLayout>
         </ScrollView>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addNewMeals"
+        android:id="@+id/addNewMeal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/window"

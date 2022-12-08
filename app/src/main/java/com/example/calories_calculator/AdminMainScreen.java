@@ -130,7 +130,9 @@ public class AdminMainScreen extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Intent in;
-                    in = new Intent(AdminMainScreen.this, AdminUserMeals.class);
+                    in = new Intent(AdminMainScreen.this, AdminUserMenus.class);
+                    System.out.println((String) user.getTag());
+                    System.out.println(adminName);
                     in.putExtra("userMail", (String) user.getTag());
                     in.putExtra("adminName", adminName);
                     startActivity(in);

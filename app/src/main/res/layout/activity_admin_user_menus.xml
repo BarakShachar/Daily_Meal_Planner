@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AdminUserMeals">
+    tools:context=".AdminUserMenus">
 
 
     <Button
@@ -31,15 +31,15 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/meals"
+        android:id="@+id/user_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/Hello"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="105dp"
+        android:layout_marginTop="25dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="50dp"
         android:padding="10dp"
-        android:text="Meals"
         android:textSize="35dp"
         android:textStyle="bold"
         android:textColor="#009688"
@@ -63,8 +63,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         android:background="@color/white"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         app:menu="@menu/admin_menu">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
@@ -74,7 +74,7 @@
         android:id="@+id/window"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/meals"
+        android:layout_below="@+id/user_menu"
         >
 
         <ScrollView
@@ -90,14 +90,13 @@
                 android:id="@+id/Table"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-
             </TableLayout>
         </ScrollView>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addNewMeals"
+        android:id="@+id/addNewMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/window"
