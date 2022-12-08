@@ -10,6 +10,7 @@ import android.widget.Button;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class AdminEdit extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
@@ -43,6 +44,7 @@ public class AdminEdit extends AppCompatActivity {
     }
     public void Logout() {
         Intent intent = new Intent(this, Login.class);
+        FirebaseAuth.getInstance().signOut();
         startActivity(intent);
         finish();
     }

@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.Patterns;
@@ -25,7 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Login extends AppCompatActivity {
     TextView emailEditText, passwordEditText, signUpBtnEditText, forgotPassword;
-    Button login_button;
+    Button loginButton;
     ProgressBar loginProgressBar;
 
     @Override
@@ -35,12 +34,12 @@ public class Login extends AppCompatActivity {
         emailEditText = findViewById(R.id.Username);
         passwordEditText = findViewById(R.id.Password);
         passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-        login_button = findViewById(R.id.Login_button);
+        loginButton = findViewById(R.id.Login_button);
         signUpBtnEditText = findViewById(R.id.Sign_up);
         loginProgressBar = findViewById(R.id.progressBarLogin);
-        login_button.setOnClickListener((v) -> loginUser());
+        loginButton.setOnClickListener((v) -> loginUser());
         forgotPassword = findViewById(R.id.forgot_password);
-        forgotPassword.setOnClickListener((v)-> resend_password());
+        forgotPassword.setOnClickListener((v)-> resendPassword());
         signUpBtnEditText.setOnClickListener((v) -> signUpAction());
     }
 
@@ -54,7 +53,7 @@ public class Login extends AppCompatActivity {
         logInUserInFirebase(email, password);
     }
 
-    void resend_password(){
+    void resendPassword(){
         String email = emailEditText.getText().toString();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -95,10 +94,10 @@ public class Login extends AppCompatActivity {
     void changeInProgress(boolean inProgress) {
         if (inProgress) {
             loginProgressBar.setVisibility(View.VISIBLE);
-            login_button.setVisibility(View.GONE);
+            loginButton.setVisibility(View.GONE);
         } else {
             loginProgressBar.setVisibility(View.GONE);
-            login_button.setVisibility(View.VISIBLE);
+            loginButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -111,13 +110,13 @@ public class Login extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
-                        connect((Boolean) document.getData().get("is_admin"));
+                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
+                        connect((Boolean) document.getData().get("isAdmin"));
                     } else {
-                        Log.d("main_activity", "No such document");
+                        Log.d("mainActivity", "No such document");
                     }
                 } else {
-                    Log.d("main_activity", "get failed with ", task.getException());
+                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
@@ -137,11 +136,11 @@ public class Login extends AppCompatActivity {
         return true;
     }
 
-    public void connect(Boolean is_admin) {
+    public void connect(Boolean isAdmin) {
         //we need to add a check if the user is admin or not. after that we will send him to the right screen//
         Intent in;
-        if (is_admin) {
-            // if isAdmin is true - it means that we need to send him to the admin's pages.
+        if (isAdmin) {
+            // if isAdmin is true - it means that we need to send him to the admin pages.
             in = new Intent(Login.this, AdminMainScreen.class);
         } else {  // if isAdmin is false - it means that we need to send him to the user's pages.
             in = new Intent(Login.this, UserMainScreen.class);

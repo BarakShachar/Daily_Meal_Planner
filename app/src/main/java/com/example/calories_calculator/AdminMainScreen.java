@@ -131,8 +131,8 @@ public class AdminMainScreen extends AppCompatActivity {
                 public void onClick(View view) {
                     Intent in;
                     in = new Intent(AdminMainScreen.this, AdminUserMeals.class);
-                    in.putExtra("user_mail", (String) user.getTag());
-                    in.putExtra("admin_name", adminName);
+                    in.putExtra("userMail", (String) user.getTag());
+                    in.putExtra("adminName", adminName);
                     startActivity(in);
                     finish();
                 }
@@ -161,13 +161,13 @@ public class AdminMainScreen extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String menu_name = editMenu.getText().toString();
-                if (adminUsers.contains(menu_name)) {
+                String menuName = editMenu.getText().toString();
+                if (adminUsers.contains(menuName)) {
                     Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
                     dialogInterface.dismiss();
                 } else {
                     removeExistingUsers();
-                    addNewUser(menu_name);
+                    addNewUser(menuName);
                 }
             }
         });
@@ -183,8 +183,8 @@ public class AdminMainScreen extends AppCompatActivity {
 
     void addName() {
         welcome = findViewById(R.id.Hello);
-        String hello_name = "Hello " + adminName;
-        welcome.setText(hello_name);
+        String helloName = "Hello " + adminName;
+        welcome.setText(helloName);
     }
 
     void getAdminData() {
@@ -196,7 +196,7 @@ public class AdminMainScreen extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         adminName = (String) document.getData().get("name");
                         ArrayList<DocumentReference> userList = (ArrayList<DocumentReference>) document.getData().get("users");
                         if (userList != null){
@@ -206,29 +206,29 @@ public class AdminMainScreen extends AppCompatActivity {
                         }
                         mainFunction();
                     } else {
-                        Log.d("main_activity", "No such document");
+                        Log.d("mainActivity", "No such document");
                     }
                 } else {
-                    Log.d("main_activity", "get failed with ", task.getException());
+                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
-    void addNewUser(String user_mail){
+    void addNewUser(String userMail){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference docRef = db.collection("users").document(user_mail);
+        DocumentReference docRef = db.collection("users").document(userMail);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
-                        boolean is_admin = (boolean) document.getData().get("is_admin");
-                        if (adminUsers.contains(user_mail)){
+                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
+                        boolean isAdmin = (boolean) document.getData().get("isAdmin");
+                        if (adminUsers.contains(userMail)){
                             Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
                         }
-                        if (is_admin == false){
+                        if (isAdmin == false){
                             docRef.update("message", mail);
                         }
                         else{
@@ -236,24 +236,25 @@ public class AdminMainScreen extends AppCompatActivity {
                         }
                     } else {
                         Toast.makeText(AdminMainScreen.this, "This user doesn't exist", Toast.LENGTH_SHORT).show();
-                        Log.d("main_activity", "No such document");
+                        Log.d("mainActivity", "No such document");
                     }
                 } else {
-                    Log.d("main_activity", "get failed with ", task.getException());
+                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
 
-    void removeUser(String user_mail) {
+    void removeUser(String userMail) {
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         DocumentReference admin = db.collection("users").document(mail);
-        DocumentReference user = db.collection("users").document(user_mail);
+        DocumentReference user = db.collection("users").document(userMail);
         admin.update("users", FieldValue.arrayRemove(user));
     }
 
     public void Logout() {
         Intent intent = new Intent(this, Login.class);
+        FirebaseAuth.getInstance().signOut();
         startActivity(intent);
         finish();
     }

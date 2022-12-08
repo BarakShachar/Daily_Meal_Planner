@@ -41,34 +41,31 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class Menu_Page extends AppCompatActivity {
+public class MenuPage extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Map<String, Object> userMeals = new HashMap<>();
     ArrayList<Button> mealButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
+    String userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
     Button logout;
     TextView meals;
-    TextView hello;
     TableLayout table;
-    String user_name; // the user name from previous screen
+    String userName; // the user name from previous screen
     String menuName; // from the previous screen
-    String mail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_page);
-        menuName = (String) getIntent().getExtras().get("menu_name");
-//        user_name = (String) getIntent().getExtras().get("user_name");
+        menuName = (String) getIntent().getExtras().get("menuName");
         logout = findViewById(R.id.logOut);
         logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
         meals = findViewById(R.id.meals);
         meals.setText(menuName + " Meals");
         addNewMeal = findViewById(R.id.addNewMeal);
-        mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         addNewMeal.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,31 +97,24 @@ public class Menu_Page extends AppCompatActivity {
     }
 
     void mainFunction(){
-//        addName();
         addMenusMeals();
-    }
-
-    void addName(){
-        hello = findViewById(R.id.Hello);
-        String hello_name = "Hello "+ user_name;
-        hello.setText(hello_name);
     }
 
 
     void getUserMeals(){
-        db.collection("users/" + mail + "/menus/" + menuName + "/meals")
+        db.collection("users/" + userMail + "/menus/" + menuName + "/meals")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("main_activity", "success get menus");
+                            Log.d("mainActivity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 userMeals.put(document.getId(), document.getData());
                             }
                             mainFunction();
                         } else {
-                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -141,9 +131,9 @@ public class Menu_Page extends AppCompatActivity {
             table.addView(row);
             Button meal = new Button(this);
             meal.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
-            String meal_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            meal.setText(meal_text);
+            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
+            String mealText = entry.getKey() + " (total calories: " + totalCals + ")";
+            meal.setText(mealText);
             meal.setGravity(Gravity.CENTER);
             meal.setTextSize(15);
             meal.setHeight(30);
@@ -158,10 +148,10 @@ public class Menu_Page extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Intent in;
-                    in = new Intent(Menu_Page.this, UserAddProductToMeal.class);
-                    in.putExtra("user_name", user_name);
-                    in.putExtra("meal_name", entry.getKey());
-                    in.putExtra("menu_name", menuName);
+                    in = new Intent(MenuPage.this, UserAddProductToMeal.class);
+                    in.putExtra("userName", userName);
+                    in.putExtra("mealName", entry.getKey());
+                    in.putExtra("menuName", menuName);
                     startActivity(in);
                     finish();
                 }
@@ -178,9 +168,9 @@ public class Menu_Page extends AppCompatActivity {
         }
     }
     void getMealNameFromUser(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Menu_Page.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MenuPage.this);
         alertDialog.setMessage("enter meal name");
-        final EditText editMeal = new EditText(Menu_Page.this);
+        final EditText editMeal = new EditText(MenuPage.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -190,13 +180,13 @@ public class Menu_Page extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String meal_name = editMeal.getText().toString().toLowerCase(Locale.ROOT);
-                if (userMeals.containsKey(meal_name)){
+                String mealName = editMeal.getText().toString().toLowerCase(Locale.ROOT);
+                if (userMeals.containsKey(mealName)){
                     dialogInterface.dismiss();
                 }
                 else {
                     removeExistingMeals();
-                    addNewMeal(meal_name);
+                    addNewMeal(mealName);
                 }
             }
         });
@@ -226,54 +216,54 @@ public class Menu_Page extends AppCompatActivity {
     }
 
 
-    void removeMeal(String meal_name){
-        Long total_meal_cals = ((Long) userMeals.get("total_cals")) * -1;
-        db.collection("users/" + mail + "/menus/" + menuName + "/meals").document(meal_name)
+    void removeMeal(String mealName){
+        Long totalMealCals = ((Long) userMeals.get("totalCals")) * -1;
+        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "DocumentSnapshot successfully deleted!");
-                        updateMenuTotalCals(total_meal_cals);
+                        Log.d("mainActivity", "DocumentSnapshot successfully deleted!");
+                        updateMenuTotalCals(totalMealCals);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error deleting document", e);
+                        Log.w("mainActivity", "Error deleting document", e);
                     }
                 });
     }
 
-    void updateMenuTotalCals(Long total_meal_cals){
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference menuDocRef = db.collection("users/" +mail+"/menus").document(menuName);
-        menuDocRef.update("total_cals", FieldValue.increment(total_meal_cals));
+    void updateMenuTotalCals(Long totalMealCals){
+        DocumentReference menuDocRef = db.collection("users/" +userMail+"/menus").document(menuName);
+        menuDocRef.update("totalCals", FieldValue.increment(totalMealCals));
     }
 
-    void addNewMeal(String meal_name){
+    void addNewMeal(String mealName){
         Map<String, Object> meal = new HashMap<>();
         ArrayList<Map<String, Object>> foods = new ArrayList<>();
-        meal.put("total_cals", 0);
+        meal.put("totalCals", 0);
         meal.put("foods", foods);
-        db.collection("users/" + mail + "/menus/" + menuName + "/meals").document(meal_name)
+        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
                 .set(meal)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "user successfully written to DB!");
+                        Log.d("mainActivity", "user successfully written to DB!");
                         getUserMeals();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error writing user document", e);
+                        Log.w("mainActivity", "Error writing user document", e);
                     }
                 });
     }
     public void Logout() {
         Intent intent = new Intent(this, Login.class);
+        FirebaseAuth.getInstance().signOut();
         startActivity(intent);
         finish();
     }

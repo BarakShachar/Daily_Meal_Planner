@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -49,14 +50,14 @@ public class AdminUserMeals extends AppCompatActivity {
     String adminName;
     ArrayList<Button> menuButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
-    Map<String, Object> user_menus = new HashMap<>();
+    Map<String, Object> userMenus = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_user_meals);
-        userMail = (String) getIntent().getExtras().get("user_mail");
-        adminName = (String) getIntent().getExtras().get("admin_name");
+        userMail = (String) getIntent().getExtras().get("userMail");
+        adminName = (String) getIntent().getExtras().get("adminName");
         addNewMenu = findViewById(R.id.addNewMenu);
         logout = findViewById(R.id.logOut);
         logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
@@ -103,22 +104,22 @@ public class AdminUserMeals extends AppCompatActivity {
         }
         menuButtons.clear();
         deleteButtons.clear();
-        user_menus.clear();
+        userMenus.clear();
     }
 
     void addMenus(){
-        if (user_menus.isEmpty()) {
+        if (userMenus.isEmpty()) {
             return;
         }
         table = (TableLayout) findViewById(R.id.Table);
-        for (Map.Entry<String,Object> entry : user_menus.entrySet()){
+        for (Map.Entry<String,Object> entry : userMenus.entrySet()){
             TableRow row = new TableRow(this);
             table.addView(row);
             Button menu = new Button(this);
             menu.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
-            String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            menu.setText(menu_text);
+            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
+            String menuText = entry.getKey() + " (total calories: " + totalCals + ")";
+            menu.setText(menuText);
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
             menu.setHeight(30);
@@ -132,7 +133,7 @@ public class AdminUserMeals extends AppCompatActivity {
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    remove_menu((String) menu.getTag());
+                    removeMenu((String) menu.getTag());
                     row.removeView(delete);
                     row.removeView(menu);
                 }
@@ -141,10 +142,10 @@ public class AdminUserMeals extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent in;
-                    in = new Intent(AdminUserMeals.this, Menu_Page.class);
-                    in.putExtra("menu_mail", (String) menu.getTag());
-                    in.putExtra("admin_name", adminName);
-                    in.putExtra("user_mail", userMail);
+                    in = new Intent(AdminUserMeals.this, MenuPage.class);
+                    in.putExtra("menuMail", (String) menu.getTag());
+                    in.putExtra("adminName", adminName);
+                    in.putExtra("userMail", userMail);
                     startActivity(in);
                     finish();
                 }
@@ -165,13 +166,13 @@ public class AdminUserMeals extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String menu_name = editMenu.getText().toString().toLowerCase(Locale.ROOT);
-                if (user_menus.containsKey(menu_name)){
+                String menuName = editMenu.getText().toString().toLowerCase(Locale.ROOT);
+                if (userMenus.containsKey(menuName)){
                     dialogInterface.dismiss();
                 }
                 else {
                     removeExistingMenus();
-                    addNewMenu(menu_name);
+                    addNewMenu(menuName);
                 }
             }
         });
@@ -186,8 +187,8 @@ public class AdminUserMeals extends AppCompatActivity {
 
     void addName(){
         hello = findViewById(R.id.Hello);
-        String hello_name = "Hello "+ adminName;
-        hello.setText(hello_name);
+        String helloName = "Hello "+ adminName;
+        hello.setText(helloName);
         TextView title = findViewById(R.id.user_menu);
         title.setText("User" + userMail + "menus");
     }
@@ -199,57 +200,58 @@ public class AdminUserMeals extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("main_activity", "success get menus");
+                            Log.d("mainActivity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                user_menus.put(document.getId(), document.getData());
+                                userMenus.put(document.getId(), document.getData());
                             }
                             mainFunction();
                         } else {
-                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
     }
 
-    void remove_menu(String menu_name){
-        db.collection("users/" + userMail + "/menus").document(menu_name)
+    void removeMenu(String menuName){
+        db.collection("users/" + userMail + "/menus").document(menuName)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "DocumentSnapshot successfully deleted!");
+                        Log.d("mainActivity", "DocumentSnapshot successfully deleted!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error deleting document", e);
+                        Log.w("mainActivity", "Error deleting document", e);
                     }
                 });
     }
 
-    void addNewMenu(String menu_name){
+    void addNewMenu(String menuName){
         Map<String, Object> menu = new HashMap<>();
-        menu.put("total_cals", 0);
-        db.collection("users/" + userMail + "/menus").document(menu_name)
+        menu.put("totalCals", 0);
+        db.collection("users/" + userMail + "/menus").document(menuName)
                 .set(menu)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "user successfully written to DB!");
+                        Log.d("mainActivity", "user successfully written to DB!");
                         getUserMenus();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error writing user document", e);
+                        Log.w("mainActivity", "Error writing user document", e);
                     }
                 });
     }
 
     public void Logout() {
         Intent intent = new Intent(this, Login.class);
+        FirebaseAuth.getInstance().signOut();
         startActivity(intent);
         finish();
     }

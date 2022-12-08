@@ -22,8 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -46,8 +44,6 @@ public class UserAddProductToMeal extends AppCompatActivity {
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
-    boolean is_last = false;
-    TextView hello;
     TableLayout table;
     String userName; // the user name from previous screen
     String mealName; // from the previous screen
@@ -59,9 +55,9 @@ public class UserAddProductToMeal extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_add_product_to_meal);
-        mealName = (String) getIntent().getExtras().get("meal_name");
-        menuName = (String) getIntent().getExtras().get("menu_name");
-        userName = (String) getIntent().getExtras().get("user_name");
+        mealName = (String) getIntent().getExtras().get("mealName");
+        menuName = (String) getIntent().getExtras().get("menuName");
+        userName = (String) getIntent().getExtras().get("userName");
         addNewMeal = findViewById(R.id.addNewMeal);
         mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         bottomNavigationView = findViewById(R.id.bottomNavigation);
@@ -97,15 +93,15 @@ public class UserAddProductToMeal extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
-                                Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                                Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                                 ArrayList<Map<String, Object>> mealProducts = (ArrayList<Map<String, Object>>) document.getData().get("foods");
                                 for (int i = 0; i < mealProducts.size(); i++) {
-                                    DocumentReference food = (DocumentReference) mealProducts.get(i).get("food_ref");
+                                    DocumentReference food = (DocumentReference) mealProducts.get(i).get("foodRef");
                                     getProductsCalories(food, mealProducts.get(i), mealProducts.size());
                                 }
                             }
                         } else {
-                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -124,12 +120,12 @@ public class UserAddProductToMeal extends AppCompatActivity {
                         if (userProducts.size() == totalItems){
                             addMealsProducts();
                         }
-                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
+                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                     } else {
-                        Log.d("main_activity", "No such document");
+                        Log.d("mainActivity", "No such document");
                     }
                 } else {
-                    Log.d("main_activity", "get failed with ", task.getException());
+                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
@@ -152,7 +148,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
             TextView amount = new TextView(this);
             TextView calories = new TextView(this);
 
-            name.setText(((DocumentReference)product.get("food_ref")).getId());
+            name.setText(((DocumentReference)product.get("foodRef")).getId());
             Long amount_ = (Long) product.get("quantity");
             Long calories_ = ((Long) product.get("calories"))*amount_;
             amount.setText(Long.toString(amount_));
@@ -234,37 +230,37 @@ public class UserAddProductToMeal extends AppCompatActivity {
         alertDialog.show();
     }
 
-    void addAmountProduct(String productName,Long new_amount,Long old_amount, Long calories){
+    void addAmountProduct(String productName,Long newAmount,Long oldAmount, Long calories){
         DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
         DocumentReference itemRef = db.collection("foods").document(productName);
         Map<String, Object> newItem = new HashMap<>();
-        newItem.put("food_ref", itemRef);
-        newItem.put("quantity",old_amount.intValue());
+        newItem.put("foodRef", itemRef);
+        newItem.put("quantity",oldAmount.intValue());
         docRef.update("foods", FieldValue.arrayRemove(newItem));
         newItem.clear();
-        newItem.put("food_ref", itemRef);
-        newItem.put("quantity", new_amount.intValue());
+        newItem.put("foodRef", itemRef);
+        newItem.put("quantity", newAmount.intValue());
         docRef.update("foods", FieldValue.arrayUnion(newItem));
-        Long caloriesPerOne = calories/old_amount;
-        Long totalAddCals = caloriesPerOne*new_amount - calories;
-        docRef.update("total_cals", FieldValue.increment(totalAddCals));
-        docRef.getParent().getParent().update("total_cals", FieldValue.increment(totalAddCals));
-        Toast.makeText(UserAddProductToMeal.this, productName +" amount updated to " + new_amount + " in your meal", Toast.LENGTH_SHORT).show();
+        Long caloriesPerOne = calories/oldAmount;
+        Long totalAddCals = caloriesPerOne*newAmount - calories;
+        docRef.update("totalCals", FieldValue.increment(totalAddCals));
+        docRef.getParent().getParent().update("totalCals", FieldValue.increment(totalAddCals));
+        Toast.makeText(UserAddProductToMeal.this, productName +" amount updated to " + newAmount + " in your meal", Toast.LENGTH_SHORT).show();
         userProducts.clear();
         getUserProducts();
     }
 
-    void removeProduct(String productName,Long old_amount, Long calories){
+    void removeProduct(String productName,Long oldAmount, Long calories){
         DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
         DocumentReference itemRef = db.collection("foods").document(productName);
         Map<String, Object> newItem = new HashMap<>();
-        newItem.put("food_ref", itemRef);
-        newItem.put("quantity",old_amount.intValue());
+        newItem.put("foodRef", itemRef);
+        newItem.put("quantity",oldAmount.intValue());
         docRef.update("foods", FieldValue.arrayRemove(newItem));
         Long totalAddCals = (-1)*calories;
-        docRef.update("total_cals", FieldValue.increment(totalAddCals));
-        docRef.getParent().getParent().update("total_cals", FieldValue.increment(totalAddCals));
-        Toast.makeText(UserAddProductToMeal.this, old_amount + " " +productName +" removed from your meal", Toast.LENGTH_SHORT).show();
+        docRef.update("totalCals", FieldValue.increment(totalAddCals));
+        docRef.getParent().getParent().update("totalCals", FieldValue.increment(totalAddCals));
+        Toast.makeText(UserAddProductToMeal.this, oldAmount + " " +productName +" removed from your meal", Toast.LENGTH_SHORT).show();
         userProducts.clear();
         getUserProducts();
     }

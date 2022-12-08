@@ -39,11 +39,11 @@ import java.util.Map;
 public class UserSuggestions extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     BottomNavigationView bottomNavigationView;
-    Map<String, Object> suggestion_menus = new HashMap<>();
+    Map<String, Object> suggestionMenus = new HashMap<>();
     TableLayout table;
     Button logout;
-    DocumentReference admin_ref = null;
-    String user_name;
+    DocumentReference adminRef = null;
+    String userName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,18 +77,18 @@ public class UserSuggestions extends AppCompatActivity {
     }
 
     void addMeals(){
-        if (suggestion_menus.isEmpty()) {
+        if (suggestionMenus.isEmpty()) {
             return;
         }
         table = (TableLayout) findViewById(R.id.Table);
-        for (Map.Entry<String,Object> entry : suggestion_menus.entrySet()){
+        for (Map.Entry<String,Object> entry : suggestionMenus.entrySet()){
             TableRow row = new TableRow(this);
             table.addView(row);
             Button menu = new Button(this);
             menu.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
-            String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            menu.setText(menu_text);
+            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
+            String menuText = entry.getKey() + " (total calories: " + totalCals + ")";
+            menu.setText(menuText);
             menu.setText(entry.getKey());
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
@@ -109,7 +109,7 @@ public class UserSuggestions extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent in;
                     in = new Intent(UserSuggestions.this, UserSuggestionsMenu.class);
-                    in.putExtra("suggestion_menu_name", (String) menu.getTag());
+                    in.putExtra("suggestionMenuName", (String) menu.getTag());
                     startActivity(in);
                     finish();
                 }
@@ -117,7 +117,7 @@ public class UserSuggestions extends AppCompatActivity {
         }
     }
 
-    void getMenuNameFromUser(String selected_menu){
+    void getMenuNameFromUser(String selectedMenu){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestions.this);
         alertDialog.setMessage("enter the menu name");
         final EditText editMeal = new EditText(UserSuggestions.this);
@@ -130,8 +130,8 @@ public class UserSuggestions extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String menu_name = editMeal.getText().toString();
-                addToUserMenu(menu_name, (Map<String, Object>) suggestion_menus.get(selected_menu));
+                String menuName = editMeal.getText().toString();
+                addToUserMenu(menuName, (Map<String, Object>) suggestionMenus.get(selectedMenu));
             }
         });
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -143,20 +143,20 @@ public class UserSuggestions extends AppCompatActivity {
         alertDialog.show();
     }
 
-    void addToUserMenu(String menu_name, Map<String, Object> meal_data) {
+    void addToUserMenu(String menuName, Map<String, Object> mealData) {
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        db.collection("users/" + mail + "/menus/").document(menu_name)
-                .set(meal_data)
+        db.collection("users/" + mail + "/menus/").document(menuName)
+                .set(mealData)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "user successfully written to DB!");
+                        Log.d("mainActivity", "user successfully written to DB!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error writing user document", e);
+                        Log.w("mainActivity", "Error writing user document", e);
                     }
                 });
     }
@@ -170,20 +170,20 @@ public class UserSuggestions extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("main_activity", "DocumentSnapshot data: " + document.getData());
-                        user_name = (String) document.getData().get("name");
-                        admin_ref = (DocumentReference) document.getData().get("admin_ref");
-                        if (admin_ref!= null){
+                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
+                        userName = (String) document.getData().get("name");
+                        adminRef = (DocumentReference) document.getData().get("adminRef");
+                        if (adminRef != null){
                             getAdminSuggestionMenus();
                         }
                         else{
                             addMeals();
                         }
                     } else {
-                        Log.d("main_activity", "No such document");
+                        Log.d("mainActivity", "No such document");
                     }
                 } else {
-                    Log.d("main_activity", "get failed with ", task.getException());
+                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
@@ -196,31 +196,31 @@ public class UserSuggestions extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("main_activity", "success get menus");
+                            Log.d("mainActivity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                suggestion_menus.put(document.getId(), document.getData());
+                                suggestionMenus.put(document.getId(), document.getData());
                             }
                         } else {
-                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
     }
 
     void getAdminSuggestionMenus(){
-        admin_ref.collection("menus")
+        adminRef.collection("menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("main_activity", "success get menus");
+                            Log.d("mainActivity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                suggestion_menus.put(document.getId(), document.getData());
+                                suggestionMenus.put(document.getId(), document.getData());
                             }
                             addMeals();
                         } else {
-                            Log.d("main_activity", "Error getting documents: ", task.getException());
+                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -228,6 +228,7 @@ public class UserSuggestions extends AppCompatActivity {
 
     public void Logout() {
         Intent intent = new Intent(this, Login.class);
+        FirebaseAuth.getInstance().signOut();
         startActivity(intent);
         finish();
     }
