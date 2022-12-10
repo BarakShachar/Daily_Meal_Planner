@@ -42,7 +42,7 @@ import java.util.Map;
 public class UserSearch extends AppCompatActivity implements View.OnClickListener {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     BottomNavigationView bottomNavigationView;
-    Button logout, vegetables, fruits, dairy;
+    Button logout, vegetables, fruits, dairy, meatAndFish,cereal, breads ;
     TableLayout table;
     PopupMenu menus;
     ArrayList<Button> productsButton = new ArrayList<>();
@@ -57,7 +57,6 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_user_search);
         logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
         vegetables = findViewById(R.id.vegetables);
         vegetables.setOnClickListener(this);
@@ -65,6 +64,12 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         fruits.setOnClickListener(this);
         dairy = findViewById(R.id.dairy);
         dairy.setOnClickListener(this);
+        meatAndFish = findViewById(R.id.meat_and_fish);
+        meatAndFish.setOnClickListener(this);
+        cereal = findViewById(R.id.cereal);
+        cereal.setOnClickListener(this);
+        breads = findViewById(R.id.breads);
+        breads.setOnClickListener(this);
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -318,16 +323,51 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                 break;
 
             case R.id.fruits:
-                text = "fruit";
-                //getProductsRef(text);
+                text = "fruits";
+                if (text != lastSearch) {
+                    products.clear();
+                    lastSearch = text;
+                    getProductsRef(text);
+                }
                 break;
 
             case R.id.dairy:
-                text = "dairy";
-                //getProductsRef(text);
-                break;
-        }
+                text = "milk & diary";
+                if (text != lastSearch) {
+                    products.clear();
+                    lastSearch = text;
+                    getProductsRef(text);
+                }
+                    break;
 
+            case R.id.meat_and_fish:
+                text = "meat";
+                if (text != lastSearch) {
+                    products.clear();
+                    lastSearch = text;
+                    getProductsRef(text);
+                }
+                    break;
+
+            case R.id.cereal:
+                text = "cereal";
+                if (text != lastSearch) {
+                    products.clear();
+                    lastSearch = text;
+                    getProductsRef(text);
+                }
+                    break;
+
+            case R.id.breads:
+                text = "bread";
+                if (text != lastSearch) {
+                    products.clear();
+                    lastSearch = text;
+                    getProductsRef(text);
+                }
+                    break;
+
+        }
     }
 
     void getUserExistingMenus(){

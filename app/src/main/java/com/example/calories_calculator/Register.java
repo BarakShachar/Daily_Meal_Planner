@@ -38,7 +38,6 @@ public class Register extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         back = findViewById(R.id.Return_button);
-        back.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         back.setOnClickListener(v -> mainScreen());
 
         usernameEditText = findViewById(R.id.Register_username);

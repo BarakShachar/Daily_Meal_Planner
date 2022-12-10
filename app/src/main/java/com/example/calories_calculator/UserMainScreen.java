@@ -61,7 +61,6 @@ public class UserMainScreen extends AppCompatActivity {
         setContentView(R.layout.activity_user_main_screen);
         addNewMenu = findViewById(R.id.addNewMenu);
         logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
@@ -131,7 +130,7 @@ public class UserMainScreen extends AppCompatActivity {
             menu.setTextSize(15);
             menu.setHeight(20);
             menu.setWidth(900);
-
+            menu.setPadding(0,20, 10,20);
 
             ImageButton delete= new ImageButton(this);
             delete.setImageResource(R.drawable.ic_menu_delete);
