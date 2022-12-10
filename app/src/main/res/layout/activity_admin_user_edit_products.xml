@@ -51,7 +51,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/white"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-        app:menu="@menu/admin_menu">
+        app:menu="@menu/user_menu">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 

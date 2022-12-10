@@ -56,14 +56,15 @@ public class AdminUserMeals extends AppCompatActivity {
     String adminName;
     String menuName; // from the previous screen
     String mail;
+    boolean isAdmin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_user_meals);
-        menuName = (String) getIntent().getExtras().get("menu_name");
-        adminName = (String) getIntent().getExtras().get("admin_name");
-        userMail = (String) getIntent().getExtras().get("user_mail");
+        menuName = (String) getIntent().getExtras().get("menuName");
+        adminName = (String) getIntent().getExtras().get("adminName");
+        userMail = (String) getIntent().getExtras().get("userMail");
         logout = findViewById(R.id.logOut);
         logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
@@ -71,29 +72,53 @@ public class AdminUserMeals extends AppCompatActivity {
         meals.setText(menuName + " Meals");
         addNewMeal = findViewById(R.id.addNewMeals);
         mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        bottomNavigationView = findViewById(R.id.AdminBottomNavigation);
+        bottomNavigationView = findViewById(R.id.BottomNavigation);
         addNewMeal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getMealNameFromUser();
             }
         });
+        isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                switch (item.getItemId()) {
+                Intent in;
+                switch(item.getItemId()) {
+                    case R.id.user_home:
+                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.user_search:
+                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.user_suggestions:
+                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
                     case R.id.admin_users:
-                        startActivity(new Intent(getApplicationContext(), AdminMainScreen.class));
-                        overridePendingTransition(0, 0);
-                        return true;
-                    case R.id.admin_edit:
-                        startActivity(new Intent(getApplicationContext(), AdminEdit.class));
-                        overridePendingTransition(0, 0);
-                        return true;
+                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
                 }
                 return false;
             }
         });
+        if (isAdmin){
+            bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
+        }
+        else{
+            bottomNavigationView.getMenu().removeItem(R.id.admin_users);
+        }
         getUserMeals();
     }
 
@@ -132,9 +157,9 @@ public class AdminUserMeals extends AppCompatActivity {
             table.addView(row);
             Button meal = new Button(this);
             meal.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
-            String meal_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            meal.setText(meal_text);
+            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
+            String mealText = entry.getKey() + " (total calories: " + totalCals + ")";
+            meal.setText(mealText);
             meal.setGravity(Gravity.CENTER);
             meal.setTextSize(15);
             meal.setHeight(30);
@@ -150,11 +175,11 @@ public class AdminUserMeals extends AppCompatActivity {
                 public void onClick(View view) {
                     Intent in;
                     in = new Intent(AdminUserMeals.this, AdminUserEditProducts.class);
-                    in.putExtra("admin_name", adminName);
-                    in.putExtra("user_mail", userMail);
-                    in.putExtra("meal_name", entry.getKey());
-                    in.putExtra("menu_name", menuName);
-                    in.putExtra("is_admin", false);
+                    in.putExtra("adminName", adminName);
+                    in.putExtra("userMail", userMail);
+                    in.putExtra("mealName", entry.getKey());
+                    in.putExtra("menuName", menuName);
+                    in.putExtra("isAdmin", isAdmin);
                     startActivity(in);
                     finish();
                 }
@@ -183,13 +208,13 @@ public class AdminUserMeals extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String meal_name = editMeal.getText().toString().toLowerCase(Locale.ROOT);
-                if (userMeals.containsKey(meal_name)){
+                String mealName = editMeal.getText().toString().toLowerCase(Locale.ROOT);
+                if (userMeals.containsKey(mealName)){
                     dialogInterface.dismiss();
                 }
                 else {
                     removeExistingMeals();
-                    addNewMeal(meal_name);
+                    addNewMeal(mealName);
                 }
             }
         });
@@ -219,15 +244,15 @@ public class AdminUserMeals extends AppCompatActivity {
     }
 
 
-    void removeMeal(String meal_name){
-        Long total_meal_cals = ((Long) userMeals.get("totalCals")) * -1;
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(meal_name)
+    void removeMeal(String mealName){
+        Long totalMealCals = ((Long) userMeals.get("totalCals")) * -1;
+        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("main_activity", "DocumentSnapshot successfully deleted!");
-                        updateMenuTotalCals(total_meal_cals);
+                        updateMenuTotalCals(totalMealCals);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -238,17 +263,17 @@ public class AdminUserMeals extends AppCompatActivity {
                 });
     }
 
-    void updateMenuTotalCals(Long total_meal_cals){
+    void updateMenuTotalCals(Long totalMealCals){
         DocumentReference menuDocRef = db.collection("users/" +userMail+"/menus").document(menuName);
-        menuDocRef.update("totalCals", FieldValue.increment(total_meal_cals));
+        menuDocRef.update("totalCals", FieldValue.increment(totalMealCals));
     }
 
-    void addNewMeal(String meal_name){
+    void addNewMeal(String mealName){
         Map<String, Object> meal = new HashMap<>();
         ArrayList<Map<String, Object>> foods = new ArrayList<>();
         meal.put("totalCals", 0);
         meal.put("foods", foods);
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(meal_name)
+        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
                 .set(meal)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

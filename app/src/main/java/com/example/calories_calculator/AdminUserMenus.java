@@ -49,7 +49,8 @@ public class AdminUserMenus extends AppCompatActivity {
     String adminName;
     ArrayList<Button> menuButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
-    Map<String, Object> user_menus = new HashMap<>();
+    Map<String, Object> userMenus = new HashMap<>();
+    boolean isAdmin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,29 +62,53 @@ public class AdminUserMenus extends AppCompatActivity {
         logout = findViewById(R.id.logOut);
         logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
-        bottomNavigationView = findViewById(R.id.AdminBottomNavigation);
+        bottomNavigationView = findViewById(R.id.BottomNavigation);
         addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getMenuNameFromUser();
             }
         });
+        isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                switch (item.getItemId()) {
+                Intent in;
+                switch(item.getItemId()) {
+                    case R.id.user_home:
+                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.user_search:
+                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.user_suggestions:
+                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
                     case R.id.admin_users:
-                        startActivity(new Intent(getApplicationContext(), AdminMainScreen.class));
-                        overridePendingTransition(0, 0);
-                        return true;
-                    case R.id.admin_edit:
-                        startActivity(new Intent(getApplicationContext(), AdminEdit.class));
-                        overridePendingTransition(0, 0);
-                        return true;
+                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
                 }
                 return false;
             }
         });
+        if (isAdmin){
+            bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
+        }
+        else{
+            bottomNavigationView.getMenu().removeItem(R.id.admin_users);
+        }
         getUserMenus();
     }
     void mainFunction(){
@@ -103,22 +128,22 @@ public class AdminUserMenus extends AppCompatActivity {
         }
         menuButtons.clear();
         deleteButtons.clear();
-        user_menus.clear();
+        userMenus.clear();
     }
 
     void addMenus(){
-        if (user_menus.isEmpty()) {
+        if (userMenus.isEmpty()) {
             return;
         }
         table = (TableLayout) findViewById(R.id.Table);
-        for (Map.Entry<String,Object> entry : user_menus.entrySet()){
+        for (Map.Entry<String,Object> entry : userMenus.entrySet()){
             TableRow row = new TableRow(this);
             table.addView(row);
             Button menu = new Button(this);
             menu.setTag(entry.getKey());
-            Long total_cals = (Long) ((Map<String,Object>) entry.getValue()).get("total_cals");
-            String menu_text = entry.getKey() + " (total calories: " + total_cals + ")";
-            menu.setText(menu_text);
+            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
+            String menuText = entry.getKey() + " (total calories: " + totalCals + ")";
+            menu.setText(menuText);
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
             menu.setHeight(30);
@@ -132,7 +157,7 @@ public class AdminUserMenus extends AppCompatActivity {
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    remove_menu((String) menu.getTag());
+                    removeMenu((String) menu.getTag());
                     row.removeView(delete);
                     row.removeView(menu);
                 }
@@ -142,9 +167,10 @@ public class AdminUserMenus extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent in;
                     in = new Intent(AdminUserMenus.this, AdminUserMeals.class);
-                    in.putExtra("menu_name", (String) menu.getTag());
-                    in.putExtra("admin_name", adminName);
-                    in.putExtra("user_mail", userMail);
+                    in.putExtra("menuName", (String) menu.getTag());
+                    in.putExtra("adminName", adminName);
+                    in.putExtra("userMail", userMail);
+                    in.putExtra("isAdmin", isAdmin);
                     startActivity(in);
                     finish();
                 }
@@ -165,13 +191,13 @@ public class AdminUserMenus extends AppCompatActivity {
         alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String menu_name = editMenu.getText().toString().toLowerCase(Locale.ROOT);
-                if (user_menus.containsKey(menu_name)){
+                String menuName = editMenu.getText().toString().toLowerCase(Locale.ROOT);
+                if (userMenus.containsKey(menuName)){
                     dialogInterface.dismiss();
                 }
                 else {
                     removeExistingMenus();
-                    addNewMenu(menu_name);
+                    addNewMenu(menuName);
                 }
             }
         });
@@ -186,8 +212,8 @@ public class AdminUserMenus extends AppCompatActivity {
 
     void addName(){
         hello = findViewById(R.id.Hello);
-        String hello_name = "Hello "+ adminName;
-        hello.setText(hello_name);
+        String helloName = "Hello "+ adminName;
+        hello.setText(helloName);
         TextView title = findViewById(R.id.user_menu);
         title.setText("User" + userMail + "menus");
     }
@@ -201,7 +227,7 @@ public class AdminUserMenus extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d("main_activity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                user_menus.put(document.getId(), document.getData());
+                                userMenus.put(document.getId(), document.getData());
                             }
                             mainFunction();
                         } else {
@@ -211,8 +237,8 @@ public class AdminUserMenus extends AppCompatActivity {
                 });
     }
 
-    void remove_menu(String menu_name){
-        db.collection("users/" + userMail + "/menus").document(menu_name)
+    void removeMenu(String menuName){
+        db.collection("users/" + userMail + "/menus").document(menuName)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -228,10 +254,10 @@ public class AdminUserMenus extends AppCompatActivity {
                 });
     }
 
-    void addNewMenu(String menu_name){
+    void addNewMenu(String menuName){
         Map<String, Object> menu = new HashMap<>();
-        menu.put("total_cals", 0);
-        db.collection("users/" + userMail + "/menus").document(menu_name)
+        menu.put("totalCals", 0);
+        db.collection("users/" + userMail + "/menus").document(menuName)
                 .set(menu)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

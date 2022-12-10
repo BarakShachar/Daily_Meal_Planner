@@ -47,42 +47,59 @@ public class AdminUserEditProducts extends AppCompatActivity {
     String mealName; // from the previous screen
     String menuName; // the user name from previous screen
     String mail;
-    boolean is_admin;
+    boolean isAdmin;
     ArrayList<Map<String, Object>> userProducts = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_user_edit_products);
-        System.out.println("here");
-        mealName = (String) getIntent().getExtras().get("meal_name");
-        is_admin = (boolean) getIntent().getExtras().get("is_admin");
-        menuName = (String) getIntent().getExtras().get("menu_name");
-        AdminName = (String) getIntent().getExtras().get("user_name");
+        mealName = (String) getIntent().getExtras().get("mealName");
+        isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
+        menuName = (String) getIntent().getExtras().get("menuName");
+        AdminName = (String) getIntent().getExtras().get("userName");
         addNewMeal = findViewById(R.id.addNewMeal);
-        if (is_admin) {
-            mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        }
-        else{
-            mail = (String) getIntent().getExtras().get("user_mail");
-        }
+        mail = (String) getIntent().getExtras().get("userMail");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                switch (item.getItemId()) {
+                Intent in;
+                switch(item.getItemId()) {
+                    case R.id.user_home:
+                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.user_search:
+                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.user_suggestions:
+                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
                     case R.id.admin_users:
-                        startActivity(new Intent(getApplicationContext(), AdminMainScreen.class));
-                        overridePendingTransition(0, 0);
-                        return true;
-                    case R.id.admin_edit:
-                        startActivity(new Intent(getApplicationContext(), AdminEdit.class));
-                        overridePendingTransition(0, 0);
-                        return true;
+                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
                 }
                 return false;
             }
         });
+        if (isAdmin){
+            bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
+        }
+        else{
+            bottomNavigationView.getMenu().removeItem(R.id.admin_users);
+        }
         getUserProducts();
     }
     void getUserProducts(){
