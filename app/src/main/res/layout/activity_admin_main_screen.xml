@@ -9,25 +9,25 @@
 
     <Button
         android:id="@+id/logOut"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         android:layout_alignRight="@id/admin_frame"
-        android:background="@android:drawable/ic_lock_power_off"
+        android:background="@drawable/ic_logout"
         android:backgroundTint="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
         android:id="@+id/Hello"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"
-        android:textSize="20sp"
+        android:layout_marginTop="65dp"
+        android:layout_marginBottom="20dp"
+        android:textSize="20dp"
         android:textStyle="bold" />
 
     <TextView
@@ -36,7 +36,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/Hello"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="25dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="50dp"
         android:padding="10dp"
@@ -100,12 +99,12 @@
         android:id="@+id/addNewUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/window"
         android:layout_alignParentEnd="true"
+        android:layout_above="@+id/BottomNavigation"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="0dp"
         android:clickable="true"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:srcCompat="@android:drawable/ic_input_add" />>
 
 
 </RelativeLayout>

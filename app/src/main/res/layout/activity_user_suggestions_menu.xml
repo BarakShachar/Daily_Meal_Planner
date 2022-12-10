@@ -36,7 +36,7 @@
         android:layout_marginStart="50dp"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="50dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="10dp"
         android:textStyle="bold"
         android:textColor="#009688"
         android:gravity="center"
@@ -46,14 +46,15 @@
         android:id="@+id/suggestions_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="75dp"
+        android:layout_below="@+id/suggestions_cover"
         android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="20dp"
         android:gravity="center"
-        android:text="you can choose meals from the following menus"
+        android:text="you can add one or more meals from this menu"
         android:textColor="#009688"
         android:textSize="20dp"
         android:textStyle="bold" />
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         app:layout_behavior="android.support.constraint.ConstraintLayout"
         android:id="@+id/window"

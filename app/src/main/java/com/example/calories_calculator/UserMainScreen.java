@@ -11,6 +11,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +58,7 @@ public class UserMainScreen extends AppCompatActivity {
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     Map<String, Object> userMenus = new HashMap<>();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,39 +79,39 @@ public class UserMainScreen extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 Intent in;
-                switch(item.getItemId()) {
+                switch (item.getItemId()) {
                     case R.id.user_home:
                         break;
                     case R.id.user_search:
-                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in = new Intent(getApplicationContext(), UserSearch.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         break;
                     case R.id.user_suggestions:
-                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in = new Intent(getApplicationContext(), UserSuggestions.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         break;
                     case R.id.admin_users:
-                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in = new Intent(getApplicationContext(), AdminMainScreen.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         break;
                 }
                 return false;
             }
         });
-        if (isAdmin){
+        if (isAdmin) {
             bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
-        }
-        else{
+        } else {
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
         getUserName();
     }
+
 
     void mainFunction(){
         addName();
@@ -144,7 +147,6 @@ public class UserMainScreen extends AppCompatActivity {
             Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
             String menuText = entry.getKey() + " (total calories: " + totalCals + ")";
             menu.setText(menuText);
-            menu.setBackgroundResource(R.drawable.text_shape);
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
             menu.setHeight(20);
