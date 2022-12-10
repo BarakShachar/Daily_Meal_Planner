@@ -75,10 +75,10 @@ public class AdminUserEditProducts extends AppCompatActivity {
                         startActivity(new Intent(getApplicationContext(), AdminMainScreen.class));
                         overridePendingTransition(0, 0);
                         return true;
-                    case R.id.admin_edit:
-                        startActivity(new Intent(getApplicationContext(), AdminEdit.class));
-                        overridePendingTransition(0, 0);
-                        return true;
+//                    case R.id.admin_edit:
+//                        startActivity(new Intent(getApplicationContext(), AdminEdit.class));
+//                        overridePendingTransition(0, 0);
+//                        return true;
                 }
                 return false;
             }

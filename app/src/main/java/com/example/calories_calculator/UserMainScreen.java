@@ -44,7 +44,7 @@ import java.util.Map;
 
 public class UserMainScreen extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    BottomNavigationView bottomNavigationView;
+    BottomNavigationView bottomNavigationView, adminBottomNavigationView;
     FloatingActionButton addNewMenu;
     TextView hello;
     TableLayout table;
@@ -54,6 +54,7 @@ public class UserMainScreen extends AppCompatActivity {
     ArrayList<Button> menuButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     Map<String, Object> userMenus = new HashMap<>();
+    boolean isAdmin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +64,7 @@ public class UserMainScreen extends AppCompatActivity {
         logout = findViewById(R.id.logOut);
         logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
-
+        isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,10 +86,20 @@ public class UserMainScreen extends AppCompatActivity {
                         startActivity(new Intent(getApplicationContext(),UserSuggestions.class));
                         overridePendingTransition(0,0);
                         break;
+                    case R.id.admin_users:
+                        startActivity(new Intent(getApplicationContext(),AdminMainScreen.class));
+                        overridePendingTransition(0,0);
+                        break;
                 }
                 return false;
             }
         });
+        if (isAdmin){
+            bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
+        }
+        else{
+            bottomNavigationView.getMenu().removeItem(R.id.admin_users);
+        }
         getUserName();
     }
 

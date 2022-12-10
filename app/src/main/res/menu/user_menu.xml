@@ -10,6 +10,10 @@
     <item android:title="Suggestions"
         android:icon="@drawable/ic_suggestion"
         android:id="@+id/user_suggestions"/>
+    <item android:title="Users"
+        android:icon="@drawable/ic_users"
+        android:id="@+id/admin_users"
+        />
 
 
 </menu>
