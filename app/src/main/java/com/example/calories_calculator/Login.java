@@ -139,12 +139,8 @@ public class Login extends AppCompatActivity {
     public void connect(Boolean isAdmin) {
         //we need to add a check if the user is admin or not. after that we will send him to the right screen//
         Intent in;
-        if (isAdmin) {
-            // if isAdmin is true - it means that we need to send him to the admin pages.
-            in = new Intent(Login.this, AdminMainScreen.class);
-        } else {  // if isAdmin is false - it means that we need to send him to the user's pages.
-            in = new Intent(Login.this, UserMainScreen.class);
-        }
+        in = new Intent(Login.this, UserMainScreen.class);
+        in.putExtra("isAdmin", isAdmin);
         changeInProgress(false);
         startActivity(in);
         finish();

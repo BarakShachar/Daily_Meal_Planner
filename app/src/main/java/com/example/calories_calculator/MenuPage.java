@@ -52,6 +52,7 @@ public class MenuPage extends AppCompatActivity {
     Button logout;
     TextView meals;
     TableLayout table;
+    boolean isAdmin;
     String userName; // the user name from previous screen
     String menuName; // from the previous screen
 
@@ -73,26 +74,46 @@ public class MenuPage extends AppCompatActivity {
                 getMealNameFromUser();
             }
         });
+        isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
+                Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        startActivity(new Intent(getApplicationContext(),UserMainScreen.class));
+                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
                         overridePendingTransition(0,0);
-                        return true;
+                        break;
                     case R.id.user_search:
-                        startActivity(new Intent(getApplicationContext(),UserSearch.class));
+                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
                         overridePendingTransition(0,0);
-                        return true;
+                        break;
                     case R.id.user_suggestions:
-                        startActivity(new Intent(getApplicationContext(),UserSuggestions.class));
+                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
                         overridePendingTransition(0,0);
-                        return true;
+                        break;
+                    case R.id.admin_users:
+                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
                 }
                 return false;
             }
         });
+        if (isAdmin){
+            bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
+        }
+        else{
+            bottomNavigationView.getMenu().removeItem(R.id.admin_users);
+        }
         getUserMeals();
     }
 
@@ -152,6 +173,7 @@ public class MenuPage extends AppCompatActivity {
                     in.putExtra("userName", userName);
                     in.putExtra("mealName", entry.getKey());
                     in.putExtra("menuName", menuName);
+                    in.putExtra("isAdmin", isAdmin);
                     startActivity(in);
                     finish();
                 }

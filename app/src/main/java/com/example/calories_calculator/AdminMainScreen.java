@@ -51,6 +51,7 @@ public class AdminMainScreen extends AppCompatActivity {
     ArrayList<Button> usersButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     ArrayList<String> adminUsers = new ArrayList<>();
+    boolean isAdmin;
 
 
     @Override
@@ -64,23 +65,43 @@ public class AdminMainScreen extends AppCompatActivity {
         logout.setOnClickListener(v -> Logout());
 
 
-        bottomNavigationView = findViewById(R.id.AdminBottomNavigation);
+        bottomNavigationView = findViewById(R.id.BottomNavigation);
+        isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                switch (item.getItemId()) {
+                Intent in;
+                switch(item.getItemId()) {
+                    case R.id.user_home:
+                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.user_search:
+                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.user_suggestions:
+                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
                     case R.id.admin_users:
-                        startActivity(new Intent(getApplicationContext(), AdminMainScreen.class));
-                        overridePendingTransition(0, 0);
-                        return true;
-                    case R.id.admin_edit:
-                        startActivity(new Intent(getApplicationContext(), AdminEdit.class));
-                        overridePendingTransition(0, 0);
-                        return true;
+                        break;
                 }
                 return false;
             }
         });
+        if (isAdmin){
+            bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
+        }
+        else{
+            bottomNavigationView.getMenu().removeItem(R.id.admin_users);
+        }
         getAdminData();
     }
 
@@ -126,19 +147,20 @@ public class AdminMainScreen extends AppCompatActivity {
             row.addView(delete);
             usersButtons.add(user);
             deleteButtons.add(delete);
-            user.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent in;
-                    in = new Intent(AdminMainScreen.this, AdminUserMenus.class);
-                    System.out.println((String) user.getTag());
-                    System.out.println(adminName);
-                    in.putExtra("userMail", (String) user.getTag());
-                    in.putExtra("adminName", adminName);
-                    startActivity(in);
-                    finish();
-                }
-            });
+//            user.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    Intent in;
+//                    in = new Intent(AdminMainScreen.this, AdminUserMenus.class);
+//                    System.out.println((String) user.getTag());
+//                    System.out.println(adminName);
+//                    in.putExtra("userMail", (String) user.getTag());
+//                    in.putExtra("adminName", adminName);
+//                    in.putExtra("isAdmin", isAdmin);
+//                    startActivity(in);
+//                    finish();
+//                }
+//            });
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -252,6 +274,7 @@ public class AdminMainScreen extends AppCompatActivity {
         DocumentReference admin = db.collection("users").document(mail);
         DocumentReference user = db.collection("users").document(userMail);
         admin.update("users", FieldValue.arrayRemove(user));
+        user.update("adminRef", FieldValue.delete());
     }
 
     public void Logout() {

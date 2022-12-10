@@ -51,6 +51,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     Map<String, ArrayList<String>> userExistingMeals = new HashMap<>();
     String userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     String lastSearch;
+    boolean isAdmin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,24 +73,42 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         breads.setOnClickListener(this);
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
+        isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
+                Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        startActivity(new Intent(getApplicationContext(),UserMainScreen.class));
+                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_search:
                         break;
                     case R.id.user_suggestions:
-                        startActivity(new Intent(getApplicationContext(),UserSuggestions.class));
+                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.admin_users:
+                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                 }
                 return false;
             }
         });
+        if (isAdmin){
+            bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
+        }
+        else{
+            bottomNavigationView.getMenu().removeItem(R.id.admin_users);
+        }
         getUserExistingMenus();
     }
 
@@ -182,6 +201,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
                     Intent in = new Intent(UserSearch.this, UserMainScreen.class);
+                    in.putExtra("isAdmin", isAdmin);
                     startActivity(in);
                     return true;
                 }
@@ -212,6 +232,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                 public boolean onMenuItemClick(MenuItem menuItem) {
                     Intent in = new Intent(UserSearch.this, MenuPage.class);
                     in.putExtra("mainActivity", menuSelected);
+                    in.putExtra("isAdmin", isAdmin);
                     startActivity(in);
                     finish();
                     return true;

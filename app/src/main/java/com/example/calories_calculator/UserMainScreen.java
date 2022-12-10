@@ -50,6 +50,7 @@ public class UserMainScreen extends AppCompatActivity {
     TableLayout table;
     Button logout;
     String userName;
+    boolean isAdmin;
     String userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     ArrayList<Button> menuButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
@@ -61,8 +62,9 @@ public class UserMainScreen extends AppCompatActivity {
         setContentView(R.layout.activity_user_main_screen);
         addNewMenu = findViewById(R.id.addNewMenu);
         logout = findViewById(R.id.logOut);
+        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         logout.setOnClickListener(v -> Logout());
-
+        isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,21 +75,38 @@ public class UserMainScreen extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
+                Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
                         break;
                     case R.id.user_search:
-                        startActivity(new Intent(getApplicationContext(),UserSearch.class));
+                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_suggestions:
-                        startActivity(new Intent(getApplicationContext(),UserSuggestions.class));
+                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
+                        overridePendingTransition(0,0);
+                        break;
+                    case R.id.admin_users:
+                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in.putExtra("isAdmin", isAdmin);
+                        startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                 }
                 return false;
             }
         });
+        if (isAdmin){
+            bottomNavigationView.getMenu().removeItem(R.id.user_suggestions);
+        }
+        else{
+            bottomNavigationView.getMenu().removeItem(R.id.admin_users);
+        }
         getUserName();
     }
 
@@ -153,6 +172,7 @@ public class UserMainScreen extends AppCompatActivity {
                     in = new Intent(UserMainScreen.this, MenuPage.class);
                     in.putExtra("menuName", (String) menu.getTag());
                     in.putExtra("userName", userName);
+                    in.putExtra("isAdmin", isAdmin);
                     startActivity(in);
                     finish();
                 }
