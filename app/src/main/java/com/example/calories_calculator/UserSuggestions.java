@@ -102,14 +102,13 @@ public class UserSuggestions extends AppCompatActivity {
             table.addView(row);
             Button menu = new Button(this);
             menu.setTag(entry.getKey());
-            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
+            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
             String menuText = entry.getKey() + " (total calories: " + totalCals + ")";
             menu.setText(menuText);
-            menu.setText(entry.getKey());
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
             menu.setHeight(30);
-            menu.setWidth(900);
+            menu.setWidth(1070);
             row.addView(menu);
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override

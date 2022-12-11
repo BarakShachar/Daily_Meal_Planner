@@ -116,11 +116,10 @@ public class UserSuggestionsMenu extends AppCompatActivity {
             Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
             String menuText = entry.getKey() + " (total calories: " + totalCals + ")";
             menu.setText(menuText);
-            menu.setText(entry.getKey());
             menu.setGravity(Gravity.CENTER);
             menu.setTextSize(15);
             menu.setHeight(30);
-            menu.setWidth(900);
+            menu.setWidth(950);
             ImageButton add= new ImageButton(this);
             add.setImageResource(R.drawable.ic_baseline_add_24);
             row.addView(menu);
@@ -198,12 +197,15 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         TextView nameHead = new TextView(this);
         TextView quantityHead = new TextView(this);
         TableRow rowHead = new TableRow(this);
-        nameHead.setText("name");
+        nameHead.setText("Name");
         nameHead.setTextSize(20);
-        nameHead.setWidth(300);
+        nameHead.setWidth(500);
+        nameHead.setGravity(Gravity.CENTER);
         rowHead.addView(nameHead);
-        quantityHead.setText("quantity");
+        quantityHead.setText("Quantity");
         quantityHead.setTextSize(20);
+        quantityHead.setWidth(500);
+        quantityHead.setGravity(Gravity.CENTER);
         rowHead.addView(quantityHead);
         table.addView(rowHead);
         for (Map<String, Object> currentFood : foodProducts) {
@@ -214,9 +216,11 @@ public class UserSuggestionsMenu extends AppCompatActivity {
             String foodName = foodRef.getId();
             String foodQuantity = Long.toString((Long) currentFood.get("quantity"));
             productQuantity.setText(foodQuantity);
-            productQuantity.setTextSize(10);
+            productQuantity.setTextSize(20);
+            productQuantity.setGravity(Gravity.CENTER);
             product.setText(foodName);
-            product.setTextSize(10);
+            product.setTextSize(20);
+            product.setGravity(Gravity.CENTER);
             row.addView(product);
             row.addView(productQuantity);
             table.addView(row);
