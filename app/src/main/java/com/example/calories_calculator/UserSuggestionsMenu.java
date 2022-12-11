@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -57,6 +58,7 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_suggestions_menu);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         suggestionMenuName = (String) getIntent().getExtras().get("suggestionMenuName");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
@@ -101,6 +103,20 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         }
         getGeneralSuggestionMeals();
         getUserExistingMenus();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
+        return true;
     }
 
     void addMeals(){

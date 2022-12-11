@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +56,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_add_product_to_meal);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mealName = (String) getIntent().getExtras().get("mealName");
         menuName = (String) getIntent().getExtras().get("menuName");
         userName = (String) getIntent().getExtras().get("userName");
@@ -101,6 +103,20 @@ public class UserAddProductToMeal extends AppCompatActivity {
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
         getUserProducts();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
+        return true;
     }
 
     void getUserProducts(){
@@ -181,8 +197,8 @@ public class UserAddProductToMeal extends AppCompatActivity {
             ImageButton delete= new ImageButton(this);
             delete.setImageResource(R.drawable.ic_menu_delete);
             row.addView(name);
-            row.addView(calories);
             row.addView(amount);
+            row.addView(calories);
             row.addView(delete);
             deleteButtons.add(delete);
             ImageButton edit= new ImageButton(this);

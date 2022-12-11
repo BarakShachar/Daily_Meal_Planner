@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -92,6 +93,20 @@ public class UserSuggestions extends AppCompatActivity {
         getGeneralSuggestionMenus();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
+        return true;
+    }
+
     void addMeals(){
         if (suggestionMenus.isEmpty()) {
             return;
@@ -102,13 +117,14 @@ public class UserSuggestions extends AppCompatActivity {
             table.addView(row);
             Button menu = new Button(this);
             menu.setTag(entry.getKey());
-            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("totalCals");
+            Long totalCals = (Long) ((Map<String,Object>) entry.getValue()).get("total cals");
             String menuText = entry.getKey() + " (total calories: " + totalCals + ")";
             menu.setText(menuText);
+            menu.setText(entry.getKey());
             menu.setGravity(Gravity.CENTER);
-            menu.setTextSize(15);
+            menu.setTextSize(12);
             menu.setHeight(30);
-            menu.setWidth(1070);
+            menu.setWidth(1050);
             row.addView(menu);
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override

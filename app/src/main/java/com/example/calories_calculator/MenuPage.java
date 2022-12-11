@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,7 @@ public class MenuPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_page);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         menuName = (String) getIntent().getExtras().get("menuName");
         logout = findViewById(R.id.logOut);
         logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
@@ -115,6 +117,20 @@ public class MenuPage extends AppCompatActivity {
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
         getUserMeals();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
+        return true;
     }
 
     void mainFunction(){
