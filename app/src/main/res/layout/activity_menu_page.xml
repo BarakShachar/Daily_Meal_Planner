@@ -6,19 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MenuPage">
 
-    <Button
-        android:id="@+id/logOut"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_alignRight="@id/menu_page"
-        android:background="@drawable/ic_logout"
-        android:backgroundTint="@color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
 
     <TextView
         android:id="@+id/meals"

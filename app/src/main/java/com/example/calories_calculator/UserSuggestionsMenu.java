@@ -58,7 +58,6 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_suggestions_menu);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         suggestionMenuName = (String) getIntent().getExtras().get("suggestionMenuName");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");

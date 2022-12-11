@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +49,6 @@ public class AdminUserMeals extends AppCompatActivity {
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
-    Button logout;
     TextView meals;
     TextView hello;
     TableLayout table;
@@ -65,9 +65,6 @@ public class AdminUserMeals extends AppCompatActivity {
         menuName = (String) getIntent().getExtras().get("menuName");
         adminName = (String) getIntent().getExtras().get("adminName");
         userMail = (String) getIntent().getExtras().get("userMail");
-        logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-        logout.setOnClickListener(v -> Logout());
         meals = findViewById(R.id.meals);
         meals.setText(menuName + " Meals");
         addNewMeal = findViewById(R.id.addNewMeals);
@@ -121,6 +118,21 @@ public class AdminUserMeals extends AppCompatActivity {
         }
         getUserMeals();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
+        return true;
+    }
+
 
     void mainFunction() {
 //        addName();
@@ -288,10 +300,5 @@ public class AdminUserMeals extends AppCompatActivity {
                         Log.w("main_activity", "Error writing user document", e);
                     }
                 });
-    }
-    public void Logout() {
-        Intent intent = new Intent(this, Login.class);
-        startActivity(intent);
-        finish();
     }
 }

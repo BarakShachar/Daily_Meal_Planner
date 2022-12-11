@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -44,7 +46,6 @@ public class AdminUserMenus extends AppCompatActivity {
     FloatingActionButton addNewMenu;
     TextView hello;
     TableLayout table;
-    Button logout;
     String userMail;
     String adminName;
     ArrayList<Button> menuButtons = new ArrayList<>();
@@ -59,9 +60,6 @@ public class AdminUserMenus extends AppCompatActivity {
         userMail = (String) getIntent().getExtras().get("userMail");
         adminName = (String) getIntent().getExtras().get("adminName");
         addNewMenu = findViewById(R.id.addNewMenu);
-        logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-        logout.setOnClickListener(v -> Logout());
         bottomNavigationView = findViewById(R.id.BottomNavigation);
         addNewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,6 +109,22 @@ public class AdminUserMenus extends AppCompatActivity {
         }
         getUserMenus();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
+        return true;
+    }
+
+
     void mainFunction(){
         addName();
         addMenus();
@@ -272,12 +286,6 @@ public class AdminUserMenus extends AppCompatActivity {
                         Log.w("main_activity", "Error writing user document", e);
                     }
                 });
-    }
-
-    public void Logout() {
-        Intent intent = new Intent(this, Login.class);
-        startActivity(intent);
-        finish();
     }
 }
 

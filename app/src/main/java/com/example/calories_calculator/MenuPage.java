@@ -50,7 +50,6 @@ public class MenuPage extends AppCompatActivity {
     String userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
-    Button logout;
     TextView meals;
     TableLayout table;
     boolean isAdmin;
@@ -61,11 +60,7 @@ public class MenuPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_page);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         menuName = (String) getIntent().getExtras().get("menuName");
-        logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-        logout.setOnClickListener(v -> Logout());
         meals = findViewById(R.id.meals);
         meals.setText(menuName + " Meals");
         addNewMeal = findViewById(R.id.addNewMeal);
@@ -298,11 +293,5 @@ public class MenuPage extends AppCompatActivity {
                         Log.w("mainActivity", "Error writing user document", e);
                     }
                 });
-    }
-    public void Logout() {
-        Intent intent = new Intent(this, Login.class);
-        FirebaseAuth.getInstance().signOut();
-        startActivity(intent);
-        finish();
     }
 }

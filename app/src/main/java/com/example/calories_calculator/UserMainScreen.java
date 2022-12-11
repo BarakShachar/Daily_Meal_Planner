@@ -51,7 +51,6 @@ public class UserMainScreen extends AppCompatActivity {
     FloatingActionButton addNewMenu;
     TextView hello;
     TableLayout table;
-    Button logout;
     String userName;
     boolean isAdmin;
     String userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
@@ -65,9 +64,6 @@ public class UserMainScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_main_screen);
         addNewMenu = findViewById(R.id.addNewMenu);
-        logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-        logout.setOnClickListener(v -> Logout());
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         addNewMenu.setOnClickListener(new View.OnClickListener() {

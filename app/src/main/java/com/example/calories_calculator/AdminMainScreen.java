@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +48,6 @@ public class AdminMainScreen extends AppCompatActivity {
     TextView welcome;
     TableLayout table;
     String adminName;
-    Button logout;
     ArrayList<Button> usersButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     ArrayList<String> adminUsers = new ArrayList<>();
@@ -60,11 +60,6 @@ public class AdminMainScreen extends AppCompatActivity {
         setContentView(R.layout.activity_admin_main_screen);
         addNewUsers = findViewById(R.id.addNewUser);
         addNewUsers.setOnClickListener(v -> getUsersFromAdmin());
-        logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-        logout.setOnClickListener(v -> Logout());
-
-
         bottomNavigationView = findViewById(R.id.BottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -103,6 +98,20 @@ public class AdminMainScreen extends AppCompatActivity {
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
         getAdminData();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
+        return true;
     }
 
     void mainFunction() {

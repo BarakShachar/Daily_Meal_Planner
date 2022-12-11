@@ -56,7 +56,6 @@ public class UserAddProductToMeal extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_add_product_to_meal);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mealName = (String) getIntent().getExtras().get("mealName");
         menuName = (String) getIntent().getExtras().get("menuName");
         userName = (String) getIntent().getExtras().get("userName");

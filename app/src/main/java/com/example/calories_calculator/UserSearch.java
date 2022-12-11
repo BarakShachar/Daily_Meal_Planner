@@ -43,7 +43,7 @@ import java.util.Map;
 public class UserSearch extends AppCompatActivity implements View.OnClickListener {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     BottomNavigationView bottomNavigationView;
-    Button logout, vegetables, fruits, dairy, meatAndFish,cereal, breads ;
+    Button vegetables, fruits, dairy, meatAndFish,cereal, breads ;
     TableLayout table;
     PopupMenu menus;
     ArrayList<Button> productsButton = new ArrayList<>();
@@ -58,8 +58,6 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_user_search);
-        logout = findViewById(R.id.logOut);
-        logout.setOnClickListener(v -> Logout());
         vegetables = findViewById(R.id.vegetables);
         vegetables.setOnClickListener(this);
         fruits = findViewById(R.id.fruits);
@@ -335,14 +333,6 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         docRef.update("totalCals", FieldValue.increment(totalAddCals));
         docRef.getParent().getParent().update("totalCals", FieldValue.increment(totalAddCals));
         Toast.makeText(UserSearch.this, quantity + " " +itemName +" added to your meal", Toast.LENGTH_SHORT).show();
-    }
-
-
-    public void Logout() {
-        Intent intent = new Intent(this, Login.class);
-        FirebaseAuth.getInstance().signOut();
-        startActivity(intent);
-        finish();
     }
 
     @Override

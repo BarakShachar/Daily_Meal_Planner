@@ -13,36 +13,33 @@
         android:theme="@style/Theme.CaloriesCalculator"
         tools:targetApi="31">
         <activity
-            android:name=".AdminUserAddProducts"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
             android:name=".AdminUserEditProducts"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".AdminUserMeals">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:name=".AdminUserMeals"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".AdminUserMenus">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:name=".UserAddProductToMeal"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".MenuPage">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:name=".UserSuggestionsMenu"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".UserSuggestions">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -56,28 +53,16 @@
         </activity>
         <activity
             android:name=".AdminUserMenus"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".AdminEdit"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".Meal_Suggestions"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".AdminMainScreen">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:name=".MenuPage"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".UserMainScreen">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

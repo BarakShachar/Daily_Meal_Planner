@@ -50,9 +50,6 @@ public class UserSuggestions extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_user_suggestions);
-        logout = findViewById(R.id.logOut);
-        logout.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-        logout.setOnClickListener(v -> Logout());
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -204,13 +201,6 @@ public class UserSuggestions extends AppCompatActivity {
                         }
                     }
                 });
-    }
-
-    public void Logout() {
-        Intent intent = new Intent(this, Login.class);
-        FirebaseAuth.getInstance().signOut();
-        startActivity(intent);
-        finish();
     }
 
 }
