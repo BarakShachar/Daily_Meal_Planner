@@ -90,7 +90,6 @@ public class UserSuggestions extends AppCompatActivity {
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
         getGeneralSuggestionMenus();
-        getUserData();
     }
 
     void addMeals(){
@@ -111,16 +110,7 @@ public class UserSuggestions extends AppCompatActivity {
             menu.setTextSize(15);
             menu.setHeight(30);
             menu.setWidth(900);
-            ImageButton add= new ImageButton(this);
-            add.setImageResource(R.drawable.ic_baseline_add_24);
             row.addView(menu);
-            row.addView(add);
-            add.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    getMenuNameFromUser((String) menu.getTag());
-                }
-            });
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -133,50 +123,6 @@ public class UserSuggestions extends AppCompatActivity {
                 }
             });
         }
-    }
-
-    void getMenuNameFromUser(String selectedMenu){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestions.this);
-        alertDialog.setMessage("enter the menu name");
-        final EditText editMeal = new EditText(UserSuggestions.this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-        );
-        editMeal.setLayoutParams(lp);
-        alertDialog.setView(editMeal);
-        alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                String menuName = editMeal.getText().toString();
-                addToUserMenu(menuName, (Map<String, Object>) suggestionMenus.get(selectedMenu));
-            }
-        });
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        alertDialog.show();
-    }
-
-    void addToUserMenu(String menuName, Map<String, Object> mealData) {
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        db.collection("users/" + mail + "/menus/").document(menuName)
-                .set(mealData)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("mainActivity", "user successfully written to DB!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("mainActivity", "Error writing user document", e);
-                    }
-                });
     }
 
     void getUserData(){
@@ -208,7 +154,7 @@ public class UserSuggestions extends AppCompatActivity {
     }
 
     void getGeneralSuggestionMenus(){
-        db.collection("users/" + "Admin/" + "menus")
+        db.collection("users/" + "admin@gmail.com/" + "menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -218,6 +164,7 @@ public class UserSuggestions extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 suggestionMenus.put(document.getId(), document.getData());
                             }
+                            getUserData();
                         } else {
                             Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }

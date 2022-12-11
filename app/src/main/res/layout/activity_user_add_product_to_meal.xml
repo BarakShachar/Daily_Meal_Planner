@@ -94,16 +94,5 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addNewMeal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@+id/bottomNavigation"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="0dp"
-        android:clickable="true"
-        app:srcCompat="@android:drawable/ic_input_add" />
-
 
 </RelativeLayout>

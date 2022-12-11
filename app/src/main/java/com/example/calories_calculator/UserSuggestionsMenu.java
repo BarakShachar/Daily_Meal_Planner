@@ -100,7 +100,6 @@ public class UserSuggestionsMenu extends AppCompatActivity {
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
         getGeneralSuggestionMeals();
-        getUserData();
         getUserExistingMenus();
     }
 
@@ -306,7 +305,7 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     }
 
     void getGeneralSuggestionMeals(){
-        db.collection("users/" + "Admin/" + "menus/" + suggestionMenuName + "/meals")
+        db.collection("users/" + "admin@gmail.com/" + "menus/" + suggestionMenuName + "/meals")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -316,6 +315,7 @@ public class UserSuggestionsMenu extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 suggestionMeals.put(document.getId(), document.getData());
                             }
+                            getUserData();
                         } else {
                             Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }

@@ -43,7 +43,6 @@ public class UserAddProductToMeal extends AppCompatActivity {
     ArrayList<Button> mealButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
-    FloatingActionButton addNewMeal;
     TableLayout table;
     String userName; // the user name from previous screen
     String mealName; // from the previous screen
@@ -59,7 +58,6 @@ public class UserAddProductToMeal extends AppCompatActivity {
         mealName = (String) getIntent().getExtras().get("mealName");
         menuName = (String) getIntent().getExtras().get("menuName");
         userName = (String) getIntent().getExtras().get("userName");
-        addNewMeal = findViewById(R.id.addNewMeal);
         mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
