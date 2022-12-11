@@ -32,6 +32,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -290,6 +291,21 @@ public class UserMainScreen extends AppCompatActivity {
     }
 
     void removeMenu(String menuName){
+        db.collection("users/" + userMail + "/menus/" + menuName + "/meals")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("mainActivity", "success get meals to delete");
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                document.getReference().delete();
+                            }
+                        } else {
+                            Log.d("mainActivity", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
         db.collection("users/" + userMail + "/menus").document(menuName)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
