@@ -35,7 +35,7 @@
         android:id="@+id/search_cover"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search:"
+        android:text="Products:"
         android:textSize="35dp"
         android:layout_marginStart="50dp"
         android:layout_marginTop="30dp"
@@ -137,7 +137,7 @@
         app:layout_behavior="android.support.constraint.ConstraintLayout"
         android:id="@+id/window"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/second_row"
         android:layout_marginTop="20dp"
         android:layout_above="@+id/bottomNavigation">
@@ -145,7 +145,7 @@
         <ScrollView
             android:id="@+id/Scroll"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

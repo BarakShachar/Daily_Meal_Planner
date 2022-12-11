@@ -149,7 +149,7 @@ public class UserMainScreen extends AppCompatActivity {
             String menuText = entry.getKey() + " (total calories: " + totalCals + ")";
             menu.setText(menuText);
             menu.setGravity(Gravity.CENTER);
-            menu.setTextSize(15);
+            menu.setTextSize(12);
             menu.setHeight(20);
             menu.setWidth(900);
             menu.setPadding(0,20, 10,20);

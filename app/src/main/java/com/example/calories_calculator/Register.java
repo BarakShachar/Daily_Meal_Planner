@@ -12,6 +12,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ public class Register extends AppCompatActivity {
     EditText usernameEditText, emailEditText, passwordEditText,confirmPassword;
     Button registerButton, back;
     ProgressBar progressBar;
+    CheckBox admin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,17 +51,19 @@ public class Register extends AppCompatActivity {
         registerButton = (Button) findViewById(R.id.Register_button);
         progressBar = findViewById(R.id.progressBar);
         registerButton.setOnClickListener(v -> createAccount());
+        admin = findViewById(R.id.admin);
     }
       void createAccount(){
         String username = usernameEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         String confirm = confirmPassword.getText().toString();
+        boolean isAdmin =admin.isChecked();
 
-        boolean isValid = validateData(username, email, password, confirm);
+          boolean isValid = validateData(username, email, password, confirm);
         if(!isValid){ return;}
 
-        createAccountInFirebase(username, email, password);
+        createAccountInFirebase(username, email, password, isAdmin);
 
 
     }
@@ -90,7 +94,7 @@ public class Register extends AppCompatActivity {
           return validData;
     }
 
-    void createAccountInFirebase(String username, String email, String password){
+    void createAccountInFirebase(String username, String email, String password, boolean isAdmin){
         changeInProgress(true);
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(Register.this, new OnCompleteListener<AuthResult>() {
@@ -98,7 +102,7 @@ public class Register extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 changeInProgress(false);
                 if(task.isSuccessful()){ //creating account is done
-                  createAccountInFirebaseDB(username, email);
+                  createAccountInFirebaseDB(username, email, isAdmin);
                   Toast.makeText(Register.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
                   mainScreen();
               } else{ // failure while creating the account
@@ -108,11 +112,11 @@ public class Register extends AppCompatActivity {
         });
     }
 
-    void createAccountInFirebaseDB(String username, String email){
+    void createAccountInFirebaseDB(String username, String email, boolean isAdmin){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> user = new HashMap<>();
         user.put("name", username);
-        user.put("isAdmin", false);
+        user.put("isAdmin", isAdmin);
         user.put("adminMail", null);
         db.collection("users").document(email)
                 .set(user)

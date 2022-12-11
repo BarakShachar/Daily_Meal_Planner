@@ -156,7 +156,7 @@ public class MenuPage extends AppCompatActivity {
             String mealText = entry.getKey() + " (total calories: " + totalCals + ")";
             meal.setText(mealText);
             meal.setGravity(Gravity.CENTER);
-            meal.setTextSize(15);
+            meal.setTextSize(12);
             meal.setHeight(30);
             meal.setWidth(900);
             ImageButton delete= new ImageButton(this);

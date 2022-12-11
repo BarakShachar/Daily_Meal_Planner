@@ -353,7 +353,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                 break;
 
             case R.id.dairy:
-                text = "milk & diary";
+                text = "milk & dairy";
                 if (text != lastSearch) {
                     products.clear();
                     lastSearch = text;
