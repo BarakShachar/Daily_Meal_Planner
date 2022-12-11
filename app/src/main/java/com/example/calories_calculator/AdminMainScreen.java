@@ -39,7 +39,6 @@ public class AdminMainScreen extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewUsers;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    TextView welcome;
     TableLayout table;
     String adminName;
     ArrayList<Button> usersButtons = new ArrayList<>();
@@ -57,7 +56,6 @@ public class AdminMainScreen extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.BottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Intent in;
@@ -107,11 +105,6 @@ public class AdminMainScreen extends AppCompatActivity {
         startActivity(intent);
         finish();
         return true;
-    }
-
-    void mainFunction() {
-        addName();
-        addUsers();
     }
 
     void removeExistingUsers() {
@@ -209,12 +202,6 @@ public class AdminMainScreen extends AppCompatActivity {
     }
 
 
-    void addName() {
-        welcome = findViewById(R.id.Hello);
-        String helloName = "Hello " + adminName;
-        welcome.setText(helloName);
-    }
-
     void getAdminData() {
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         DocumentReference docRef = db.collection("users").document(mail);
@@ -232,7 +219,7 @@ public class AdminMainScreen extends AppCompatActivity {
                                 adminUsers.add(userList.get(i).getId());
                             }
                         }
-                        mainFunction();
+                        addUsers();
                     } else {
                         Log.d("mainActivity", "No such document");
                     }
