@@ -1,9 +1,8 @@
 package com.example.calories_calculator;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -74,6 +73,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 Intent in;
@@ -335,13 +335,14 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
         Toast.makeText(UserSearch.this, quantity + " " +itemName +" added to your meal", Toast.LENGTH_SHORT).show();
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
         String text;
         switch (v.getId()){
             case R.id.vegetables:
                 text = "vegetable";
-                if (text != lastSearch){
+                if (!text.equals(lastSearch)){
                     products.clear();
                     lastSearch = text;
                     getProductsRef(text);
@@ -350,7 +351,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
             case R.id.fruits:
                 text = "fruits";
-                if (text != lastSearch) {
+                if (!text.equals(lastSearch)) {
                     products.clear();
                     lastSearch = text;
                     getProductsRef(text);
@@ -359,7 +360,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
             case R.id.dairy:
                 text = "milk & dairy";
-                if (text != lastSearch) {
+                if (!text.equals(lastSearch)) {
                     products.clear();
                     lastSearch = text;
                     getProductsRef(text);
@@ -368,7 +369,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
             case R.id.meat_and_fish:
                 text = "meat";
-                if (text != lastSearch) {
+                if (!text.equals(lastSearch)) {
                     products.clear();
                     lastSearch = text;
                     getProductsRef(text);
@@ -377,7 +378,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
             case R.id.cereal:
                 text = "cereal";
-                if (text != lastSearch) {
+                if (!text.equals(lastSearch)) {
                     products.clear();
                     lastSearch = text;
                     getProductsRef(text);
@@ -386,7 +387,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
             case R.id.breads:
                 text = "bread";
-                if (text != lastSearch) {
+                if (!text.equals(lastSearch)) {
                     products.clear();
                     lastSearch = text;
                     getProductsRef(text);

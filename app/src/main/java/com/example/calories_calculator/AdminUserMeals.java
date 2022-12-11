@@ -4,10 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -50,7 +49,6 @@ public class AdminUserMeals extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
     TextView meals;
-    TextView hello;
     TableLayout table;
     String userMail;
     String adminName;
@@ -78,6 +76,7 @@ public class AdminUserMeals extends AppCompatActivity {
         });
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 Intent in;
@@ -133,12 +132,6 @@ public class AdminUserMeals extends AppCompatActivity {
         return true;
     }
 
-
-    void mainFunction() {
-//        addName();
-        addMenusMeals();
-    }
-
     void getUserMeals(){
         db.collection("users/" + userMail + "/menus/" + menuName + "/meals")
                 .get()
@@ -150,7 +143,7 @@ public class AdminUserMeals extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 userMeals.put(document.getId(), document.getData());
                             }
-                            mainFunction();
+                            addMenusMeals();
                         } else {
                             Log.d("main_activity", "Error getting documents: ", task.getException());
                         }

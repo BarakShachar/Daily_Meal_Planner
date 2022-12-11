@@ -4,10 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,8 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -36,10 +33,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AdminMainScreen extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
@@ -63,8 +57,9 @@ public class AdminMainScreen extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.BottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
             @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
@@ -261,7 +256,7 @@ public class AdminMainScreen extends AppCompatActivity {
                         if (adminUsers.contains(userMail)){
                             Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
                         }
-                        if (isAdmin == false){
+                        if (!isAdmin){
                             docRef.update("message", mail);
                         }
                         else{
@@ -284,12 +279,5 @@ public class AdminMainScreen extends AppCompatActivity {
         DocumentReference user = db.collection("users").document(userMail);
         admin.update("users", FieldValue.arrayRemove(user));
         user.update("adminRef", FieldValue.delete());
-    }
-
-    public void Logout() {
-        Intent intent = new Intent(this, Login.class);
-        FirebaseAuth.getInstance().signOut();
-        startActivity(intent);
-        finish();
     }
 }

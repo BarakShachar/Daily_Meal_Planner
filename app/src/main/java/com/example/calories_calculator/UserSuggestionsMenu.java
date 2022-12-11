@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -62,6 +62,7 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 Intent in;

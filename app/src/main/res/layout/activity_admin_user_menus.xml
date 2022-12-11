@@ -22,7 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/Hello"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="25dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="50dp"
         android:padding="10dp"
@@ -85,12 +84,13 @@
         android:id="@+id/addNewMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/window"
         android:layout_alignParentEnd="true"
+        android:layout_above="@+id/BottomNavigation"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="0dp"
         android:clickable="true"
         app:srcCompat="@android:drawable/ic_input_add" />
+
 
 
 </RelativeLayout>

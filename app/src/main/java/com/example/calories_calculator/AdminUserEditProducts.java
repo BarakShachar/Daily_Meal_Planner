@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,7 +43,6 @@ public class AdminUserEditProducts extends AppCompatActivity {
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
-    TextView hello;
     TableLayout table;
     String AdminName; // the user name from previous screen
     String mealName; // from the previous screen
@@ -63,6 +63,7 @@ public class AdminUserEditProducts extends AppCompatActivity {
         mail = (String) getIntent().getExtras().get("userMail");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 Intent in;
