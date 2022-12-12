@@ -225,7 +225,6 @@ public class UserAddProductToMeal extends AppCompatActivity {
                     row.removeView(amount);
                     row.removeView(calories);
                     row.removeView(edit);
-
                 }
             });
 
@@ -250,6 +249,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
                 if (Integer.parseInt(amount) ==0){
                     dialogInterface.dismiss();
                     removeProduct(productName,oldAmount,calories);
+
                 }
                 else {
                     addAmountProduct(productName,Long.parseLong(amount),oldAmount,calories);
@@ -276,8 +276,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
         newItem.put("foodRef", itemRef);
         newItem.put("quantity", newAmount.intValue());
         docRef.update("foods", FieldValue.arrayUnion(newItem));
-        Long caloriesPerOne = calories/oldAmount;
-        Long totalAddCals = caloriesPerOne*newAmount - calories;
+        Long totalAddCals = (newAmount-oldAmount)*calories;
         docRef.update("totalCals", FieldValue.increment(totalAddCals));
         docRef.getParent().getParent().update("totalCals", FieldValue.increment(totalAddCals));
         Toast.makeText(UserAddProductToMeal.this, productName +" amount updated to " + newAmount + " in your meal", Toast.LENGTH_SHORT).show();
