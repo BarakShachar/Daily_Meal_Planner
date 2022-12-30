@@ -39,7 +39,6 @@ import java.util.Locale;
 import java.util.Map;
 
 public class AdminUserEditProducts extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMeal;
@@ -50,6 +49,7 @@ public class AdminUserEditProducts extends AppCompatActivity {
     String mail;
     boolean isAdmin;
     ArrayList<Map<String, Object>> userProducts = new ArrayList<>();
+    FirestoreWrapper wrapper = new FirestoreWrapper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,23 +120,19 @@ public class AdminUserEditProducts extends AppCompatActivity {
     }
 
     void getUserProducts(){
-        db.collection("users/" + mail + "/menus/" + menuName + "/meals/").document(mealName)
-                .get()
+        wrapper.getDocument("users/" + mail + "/menus/" + menuName + "/meals/" + mealName)
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
-                                Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                                 ArrayList<Map<String, Object>> mealProducts = (ArrayList<Map<String, Object>>) document.getData().get("foods");
                                 for (int i = 0; i < mealProducts.size(); i++) {
                                     DocumentReference food = (DocumentReference) mealProducts.get(i).get("foodRef");
                                     getProductsCalories(food, mealProducts.get(i), mealProducts.size());
                                 }
                             }
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -225,7 +221,6 @@ public class AdminUserEditProducts extends AppCompatActivity {
                     row.removeView(amount);
                     row.removeView(calories);
                     row.removeView(edit);
-
                 }
             });
 
@@ -266,8 +261,8 @@ public class AdminUserEditProducts extends AppCompatActivity {
     }
 
     void addAmountProduct(String productName,Long newAmount,Long oldAmount, Long calories){
-        DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
-        DocumentReference itemRef = db.collection("foods").document(productName);
+        DocumentReference docRef = wrapper.getDocumentRef("users/"+mail+"/menus/"+menuName+"/meals/"+mealName);
+        DocumentReference itemRef = wrapper.getDocumentRef("foods/"+productName);
         Map<String, Object> newItem = new HashMap<>();
         newItem.put("foodRef", itemRef);
         newItem.put("quantity",oldAmount.intValue());
@@ -286,8 +281,8 @@ public class AdminUserEditProducts extends AppCompatActivity {
     }
 
     void removeProduct(String productName,Long oldAmount, Long calories){
-        DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
-        DocumentReference itemRef = db.collection("foods").document(productName);
+        DocumentReference docRef = wrapper.getDocumentRef("users/"+mail+"/menus/"+menuName+"/meals/"+mealName);
+        DocumentReference itemRef = wrapper.getDocumentRef("foods/"+productName);
         Map<String, Object> newItem = new HashMap<>();
         newItem.put("foodRef", itemRef);
         newItem.put("quantity",oldAmount.intValue());
@@ -299,9 +294,4 @@ public class AdminUserEditProducts extends AppCompatActivity {
         userProducts.clear();
         getUserProducts();
     }
-
-
-
-
-
 }

@@ -43,7 +43,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class UserMainScreen extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirestoreWrapper wrapper = new FirestoreWrapper();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMenu;
     TextView hello;
@@ -232,13 +232,13 @@ public class UserMainScreen extends AppCompatActivity {
 
 
     void AdminRequest(String adminMail){
-        DocumentReference user = db.collection("users").document(userMail);
+        DocumentReference user = wrapper.getDocumentRef("users/"+userMail);
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserMainScreen.this);
         alertDialog.setMessage("Admin: " + adminMail + " Wants to add you to their users.");
         alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                DocumentReference admin = db.collection("users").document(adminMail);
+                DocumentReference admin = wrapper.getDocumentRef("users/"+adminMail);
                 admin.update("users", FieldValue.arrayUnion(user));
                 user.update("adminRef", admin);
                 user.update("message", FieldValue.delete());
@@ -255,33 +255,27 @@ public class UserMainScreen extends AppCompatActivity {
         alertDialog.show();
     }
     void getUserName(){
-        DocumentReference docRef = db.collection("users").document(userMail);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        wrapper.getDocument("users/"+userMail)
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         userName = (String) document.getData().get("name");
                         String adminRequest = (String) document.getData().get("message");
                         if (adminRequest != null){
                             AdminRequest(adminRequest);
                         }
                         getUserMenus();
-
-                    } else {
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
 
     void getUserMenus(){
-        db.collection("users/" + userMail + "/menus")
+        wrapper.getCollectionRef("users/"+userMail+"/menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -300,7 +294,7 @@ public class UserMainScreen extends AppCompatActivity {
     }
 
     void removeMenu(String menuName){
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals")
+        wrapper.getCollectionRef("users/" + userMail + "/menus/" + menuName + "/meals")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -315,7 +309,7 @@ public class UserMainScreen extends AppCompatActivity {
                         }
                     }
                 });
-        db.collection("users/" + userMail + "/menus").document(menuName)
+        wrapper.getDocumentRef("users/" + userMail + "/menus/"+menuName)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -334,19 +328,11 @@ public class UserMainScreen extends AppCompatActivity {
     void addNewMenu(String menuName){
         Map<String, Object> menu = new HashMap<>();
         menu.put("totalCals", 0);
-        db.collection("users/" + userMail + "/menus").document(menuName)
-                .set(menu)
+        wrapper.setDocument("users/" + userMail + "/menus/"+menuName,menu)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("mainActivity", "user successfully written to DB!");
                         getUserMenus();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("mainActivity", "Error writing user document", e);
                     }
                 });
     }

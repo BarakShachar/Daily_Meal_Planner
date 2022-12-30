@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserSuggestionsMenu extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirestoreWrapper wrapper = new FirestoreWrapper();
     BottomNavigationView bottomNavigationView;
     Map<String, Object> suggestionMeals = new HashMap<>();
     TableLayout table;
@@ -256,14 +256,13 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     }
 
     void getUserData(){
-        DocumentReference docRef = db.collection("users").document(userMail);
+        DocumentReference docRef = wrapper.getDocumentRef("users/"+userMail);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         userName = (String) document.getData().get("name");
                         adminRef = (DocumentReference) document.getData().get("adminRef");
                         if (adminRef != null){
@@ -272,18 +271,14 @@ public class UserSuggestionsMenu extends AppCompatActivity {
                         else{
                             addMeals();
                         }
-                    } else {
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
 
     void getUserExistingMenus(){
-        db.collection("users/" + userMail + "/menus")
+        wrapper.getCollectionRef("users/" + userMail + "/menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -302,8 +297,7 @@ public class UserSuggestionsMenu extends AppCompatActivity {
 
     void addToUserMenu(String menuName, String mealName, Map<String, Object> mealData){
         Long totalAddCals = (Long) mealData.get("totalCals");
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
-                .set(mealData)
+        wrapper.setDocument("users/" + userMail + "/menus/" + menuName + "/meals/"+mealName, mealData)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -320,12 +314,12 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     }
 
     void updateMenuTotalCals(String menuName, Long totalMealCals){
-        DocumentReference menuDocRef = db.collection("users/" + userMail +"/menus").document(menuName);
+        DocumentReference menuDocRef = wrapper.getDocumentRef("users/" + userMail +"/menus/"+menuName);
         menuDocRef.update("totalCals", FieldValue.increment(totalMealCals));
     }
 
     void getGeneralSuggestionMeals(){
-        db.collection("users/" + "admin@gmail.com/" + "menus/" + suggestionMenuName + "/meals")
+        wrapper.getCollectionRef("users/" + "admin@gmail.com/" + "menus/" + suggestionMenuName + "/meals")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

@@ -39,7 +39,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class UserAddProductToMeal extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirestoreWrapper wrapper = new FirestoreWrapper();
     Map<String, Object> userMeals = new HashMap<>();
     ArrayList<Button> mealButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
@@ -120,8 +120,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
     }
 
     void getUserProducts(){
-        db.collection("users/" + mail + "/menus/" + menuName + "/meals/").document(mealName)
-                .get()
+        wrapper.getDocument("users/" + mail + "/menus/" + menuName + "/meals/"+mealName)
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -135,8 +134,6 @@ public class UserAddProductToMeal extends AppCompatActivity {
                                     getProductsCalories(food, mealProducts.get(i), mealProducts.size());
                                 }
                             }
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -266,8 +263,8 @@ public class UserAddProductToMeal extends AppCompatActivity {
     }
 
     void addAmountProduct(String productName,Long newAmount,Long oldAmount, Long calories){
-        DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
-        DocumentReference itemRef = db.collection("foods").document(productName);
+        DocumentReference docRef = wrapper.getDocumentRef("users/"+mail+"/menus/"+menuName+"/meals/"+mealName);
+        DocumentReference itemRef = wrapper.getDocumentRef("foods/"+productName);
         Map<String, Object> newItem = new HashMap<>();
         newItem.put("foodRef", itemRef);
         newItem.put("quantity",oldAmount.intValue());
@@ -285,8 +282,8 @@ public class UserAddProductToMeal extends AppCompatActivity {
     }
 
     void removeProduct(String productName,Long oldAmount, Long calories){
-        DocumentReference docRef = db.collection("users/"+mail+"/menus/"+menuName+"/meals").document(mealName);
-        DocumentReference itemRef = db.collection("foods").document(productName);
+        DocumentReference docRef = wrapper.getDocumentRef("users/"+mail+"/menus/"+menuName+"/meals/"+mealName);
+        DocumentReference itemRef = wrapper.getDocumentRef("foods/"+productName);
         Map<String, Object> newItem = new HashMap<>();
         newItem.put("foodRef", itemRef);
         newItem.put("quantity",oldAmount.intValue());

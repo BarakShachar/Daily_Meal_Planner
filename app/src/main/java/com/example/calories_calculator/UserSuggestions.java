@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserSuggestions extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirestoreWrapper wrapper = new FirestoreWrapper();
     BottomNavigationView bottomNavigationView;
     Map<String, Object> suggestionMenus = new HashMap<>();
     TableLayout table;
@@ -131,14 +131,13 @@ public class UserSuggestions extends AppCompatActivity {
 
     void getUserData(){
         String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference docRef = db.collection("users").document(mail);
+        DocumentReference docRef = wrapper.getDocumentRef("users/"+mail);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         userName = (String) document.getData().get("name");
                         adminRef = (DocumentReference) document.getData().get("adminRef");
                         if (adminRef != null){
@@ -147,30 +146,23 @@ public class UserSuggestions extends AppCompatActivity {
                         else{
                             addMeals();
                         }
-                    } else {
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
 
     void getGeneralSuggestionMenus(){
-        db.collection("users/" + "admin@gmail.com/" + "menus")
+        wrapper.getCollectionRef("users/" + "admin@gmail.com/" + "menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("mainActivity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 suggestionMenus.put(document.getId(), document.getData());
                             }
                             getUserData();
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -183,13 +175,10 @@ public class UserSuggestions extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("mainActivity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 suggestionMenus.put(document.getId(), document.getData());
                             }
                             addMeals();
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });

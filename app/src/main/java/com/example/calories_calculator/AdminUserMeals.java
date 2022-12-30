@@ -23,7 +23,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -32,7 +31,6 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -42,7 +40,6 @@ import java.util.Locale;
 import java.util.Map;
 
 public class AdminUserMeals extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
     Map<String, Object> userMeals = new HashMap<>();
     ArrayList<Button> mealButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
@@ -55,6 +52,7 @@ public class AdminUserMeals extends AppCompatActivity {
     String menuName; // from the previous screen
     String mail;
     boolean isAdmin;
+    FirestoreWrapper wrapper = new FirestoreWrapper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,9 +131,8 @@ public class AdminUserMeals extends AppCompatActivity {
     }
 
     void getUserMeals(){
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        wrapper.getCollectionRef("users/" + userMail + "/menus/" + menuName + "/meals")
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
@@ -251,25 +248,17 @@ public class AdminUserMeals extends AppCompatActivity {
 
     void removeMeal(String mealName){
         Long totalMealCals = ((Long) userMeals.get("totalCals")) * -1;
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+        wrapper.getDocumentRef("users/" + userMail + "/menus/" + menuName + "/meals/"+mealName)
+                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "DocumentSnapshot successfully deleted!");
                         updateMenuTotalCals(totalMealCals);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error deleting document", e);
                     }
                 });
     }
 
     void updateMenuTotalCals(Long totalMealCals){
-        DocumentReference menuDocRef = db.collection("users/" +userMail+"/menus").document(menuName);
+        DocumentReference menuDocRef = wrapper.getDocumentRef("users/" +userMail+"/menus/"+menuName);
         menuDocRef.update("totalCals", FieldValue.increment(totalMealCals));
     }
 
@@ -278,19 +267,11 @@ public class AdminUserMeals extends AppCompatActivity {
         ArrayList<Map<String, Object>> foods = new ArrayList<>();
         meal.put("totalCals", 0);
         meal.put("foods", foods);
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
-                .set(meal)
+        wrapper.setDocument("users/"+userMail+"/menus/"+menuName+"/meals/"+mealName, meal)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "user successfully written to DB!");
                         getUserMeals();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error writing user document", e);
                     }
                 });
     }

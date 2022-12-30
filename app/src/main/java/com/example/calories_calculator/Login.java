@@ -26,6 +26,7 @@ public class Login extends AppCompatActivity {
     TextView emailEditText, passwordEditText, signUpBtnEditText, forgotPassword;
     Button loginButton;
     ProgressBar loginProgressBar;
+    FirestoreWrapper wrapper = new FirestoreWrapper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,21 +103,15 @@ public class Login extends AppCompatActivity {
     }
 
     void getUserData(String mail){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("users").document(mail);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        wrapper.getDocument("users/"+mail)
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         connect((Boolean) document.getData().get("isAdmin"));
-                    } else {
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });

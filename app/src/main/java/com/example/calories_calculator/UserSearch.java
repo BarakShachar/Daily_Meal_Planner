@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserSearch extends AppCompatActivity implements View.OnClickListener {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirestoreWrapper wrapper = new FirestoreWrapper();
     BottomNavigationView bottomNavigationView;
     Button vegetables, fruits, dairy, meatAndFish,cereal, breads ;
     TableLayout table;
@@ -52,6 +52,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     String userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     String lastSearch;
     boolean isAdmin;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,8 +127,8 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     }
 
     void getProducts(String item, int totalProducts){
-        DocumentReference foods = db.collection("foods").document(item);
-        foods.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        wrapper.getDocument("foods/"+item)
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -137,35 +138,25 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                         if (products.size() == totalProducts){
                             showProducts();
                         }
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
-                    } else {
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
     void getProductsRef(String text){
-        DocumentReference docRef = db.collection("food types").document(text);
+        DocumentReference docRef = wrapper.getDocumentRef("food types/"+text);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         ArrayList<DocumentReference> foodList = (ArrayList<DocumentReference>) document.getData().get("foods");
                             for (int i =0; i< foodList.size();i++){
                                 String name = foodList.get(i).getId();
                                     getProducts(name, foodList.size());
                             }
-                    } else {
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
@@ -296,15 +287,14 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
 
 
     void validateItemOnMeal(String menuName, String mealName, String itemName, int quantity){
-        DocumentReference itemRef = db.collection("foods").document(itemName);
-        DocumentReference docRef = db.collection("users/"+userMail+"/menus/"+menuName+"/meals").document(mealName);
+        DocumentReference itemRef = wrapper.getDocumentRef("foods/"+itemName);
+        DocumentReference docRef = wrapper.getDocumentRef("users/"+userMail+"/menus/"+menuName+"/meals/"+mealName);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         ArrayList<Map<String, Object>> foodList = (ArrayList<Map<String, Object>>) document.getData().get("foods");
                         for (int i =0; i< foodList.size();i++){
                             if (itemRef.equals(foodList.get(i).get("foodRef"))){
@@ -313,18 +303,14 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                             }
                         }
                         addItemToMeal(docRef, itemName, quantity);
-                    } else {
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
 
     void addItemToMeal(DocumentReference docRef, String itemName, int quantity){
-        DocumentReference itemRef = db.collection("foods").document(itemName);
+        DocumentReference itemRef = wrapper.getDocumentRef("foods/"+itemName);
         Map<String, Object> newItem = new HashMap<>();
         newItem.put("foodRef", itemRef);
         newItem.put("quantity", quantity);
@@ -398,7 +384,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     }
 
     void getUserExistingMenus(){
-        db.collection("users/" + userMail + "/menus")
+        wrapper.getCollectionRef("users/" + userMail + "/menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -417,7 +403,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     }
 
     void getUserExistingMeals(String menuName){
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals")
+        wrapper.getCollectionRef("users/" + userMail + "/menus/" + menuName + "/meals")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

@@ -32,7 +32,6 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -42,7 +41,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class MenuPage extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirestoreWrapper wrapper = new FirestoreWrapper();
     Map<String, Object> userMeals = new HashMap<>();
     ArrayList<Button> mealButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
@@ -134,19 +133,16 @@ public class MenuPage extends AppCompatActivity {
 
 
     void getUserMeals(){
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals")
+        wrapper.getCollectionRef("users/" + userMail + "/menus/" + menuName + "/meals")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("mainActivity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 userMeals.put(document.getId(), document.getData());
                             }
                             mainFunction();
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -251,7 +247,7 @@ public class MenuPage extends AppCompatActivity {
 
     void removeMeal(String mealName){
         Long totalMealCals = ((Long) userMeals.get("totalCals")) * -1;
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
+        wrapper.getDocumentRef("users/" + userMail + "/menus/" + menuName + "/meals/"+mealName)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -269,7 +265,7 @@ public class MenuPage extends AppCompatActivity {
     }
 
     void updateMenuTotalCals(Long totalMealCals){
-        DocumentReference menuDocRef = db.collection("users/" +userMail+"/menus").document(menuName);
+        DocumentReference menuDocRef = wrapper.getDocumentRef("users/" +userMail+"/menus/"+menuName);
         menuDocRef.update("totalCals", FieldValue.increment(totalMealCals));
     }
 
@@ -278,19 +274,11 @@ public class MenuPage extends AppCompatActivity {
         ArrayList<Map<String, Object>> foods = new ArrayList<>();
         meal.put("totalCals", 0);
         meal.put("foods", foods);
-        db.collection("users/" + userMail + "/menus/" + menuName + "/meals").document(mealName)
-                .set(meal)
+        wrapper.setDocument("users/" + userMail + "/menus/" + menuName + "/meals/"+mealName, meal)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("mainActivity", "user successfully written to DB!");
                         getUserMeals();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("mainActivity", "Error writing user document", e);
                     }
                 });
     }

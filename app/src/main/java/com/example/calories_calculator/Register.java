@@ -32,6 +32,7 @@ public class Register extends AppCompatActivity {
     Button registerButton, back;
     ProgressBar progressBar;
     CheckBox admin;
+    FirestoreWrapper wrapper = new FirestoreWrapper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,24 +112,20 @@ public class Register extends AppCompatActivity {
     }
 
     void createAccountInFirebaseDB(String username, String email, boolean isAdmin){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> user = new HashMap<>();
         user.put("name", username);
         user.put("isAdmin", isAdmin);
         user.put("adminMail", null);
-        db.collection("users").document(email)
-                .set(user)
+        wrapper.setDocument("users/"+email, user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("mainActivity", "user successfully written to DB!");
                         signOut();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("mainActivity", "Error writing user document", e);
                         signOut();
                     }
                 });

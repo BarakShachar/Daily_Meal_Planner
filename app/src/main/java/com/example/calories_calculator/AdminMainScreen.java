@@ -3,8 +3,6 @@ package com.example.calories_calculator;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,7 +18,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,13 +35,14 @@ import java.util.ArrayList;
 public class AdminMainScreen extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewUsers;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
     TableLayout table;
     String adminName;
     ArrayList<Button> usersButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     ArrayList<String> adminUsers = new ArrayList<>();
+    String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     boolean isAdmin;
+    FirestoreWrapper wrapper = new FirestoreWrapper();
 
 
     @Override
@@ -203,15 +201,13 @@ public class AdminMainScreen extends AppCompatActivity {
 
 
     void getAdminData() {
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference docRef = db.collection("users").document(mail);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        wrapper.getDocument("users/" + mail)
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         adminName = (String) document.getData().get("name");
                         ArrayList<DocumentReference> userList = (ArrayList<DocumentReference>) document.getData().get("users");
                         if (userList != null){
@@ -220,25 +216,19 @@ public class AdminMainScreen extends AppCompatActivity {
                             }
                         }
                         addUsers();
-                    } else {
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
     void addNewUser(String userMail){
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference docRef = db.collection("users").document(userMail);
+        DocumentReference docRef = wrapper.getDocumentRef("users/" + userMail);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
                         boolean isAdmin = (boolean) document.getData().get("isAdmin");
                         if (adminUsers.contains(userMail)){
                             Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
@@ -251,19 +241,15 @@ public class AdminMainScreen extends AppCompatActivity {
                         }
                     } else {
                         Toast.makeText(AdminMainScreen.this, "This user doesn't exist", Toast.LENGTH_SHORT).show();
-                        Log.d("mainActivity", "No such document");
                     }
-                } else {
-                    Log.d("mainActivity", "get failed with ", task.getException());
                 }
             }
         });
     }
 
     void removeUser(String userMail) {
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference admin = db.collection("users").document(mail);
-        DocumentReference user = db.collection("users").document(userMail);
+        DocumentReference admin = wrapper.getDocumentRef("users/" + mail);
+        DocumentReference user = wrapper.getDocumentRef("users/" + userMail);
         admin.update("users", FieldValue.arrayRemove(user));
         user.update("adminRef", FieldValue.delete());
     }

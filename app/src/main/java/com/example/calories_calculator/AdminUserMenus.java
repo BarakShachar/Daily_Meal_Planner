@@ -8,7 +8,6 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,14 +22,12 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -40,7 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class AdminUserMenus extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirestoreWrapper wrapper = new FirestoreWrapper();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMenu;
     TextView hello;
@@ -233,57 +230,33 @@ public class AdminUserMenus extends AppCompatActivity {
     }
 
     void getUserMenus(){
-        db.collection("users/" + userMail + "/menus")
+        wrapper.getCollectionRef("users/" + userMail + "/menus")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("main_activity", "success get menus");
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 userMenus.put(document.getId(), document.getData());
                             }
                             mainFunction();
-                        } else {
-                            Log.d("main_activity", "Error getting documents: ", task.getException());
                         }
                     }
                 });
     }
 
     void removeMenu(String menuName){
-        db.collection("users/" + userMail + "/menus").document(menuName)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error deleting document", e);
-                    }
-                });
+        wrapper.getDocumentRef("users/" + userMail + "/menus/"+menuName).delete();
     }
 
     void addNewMenu(String menuName){
         Map<String, Object> menu = new HashMap<>();
         menu.put("totalCals", 0);
-        db.collection("users/" + userMail + "/menus").document(menuName)
-                .set(menu)
+        wrapper.setDocument("users/" + userMail + "/menus/"+menuName, menu)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("main_activity", "user successfully written to DB!");
                         getUserMenus();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("main_activity", "Error writing user document", e);
                     }
                 });
     }
