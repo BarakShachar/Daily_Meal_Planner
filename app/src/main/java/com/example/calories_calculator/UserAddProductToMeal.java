@@ -40,8 +40,6 @@ import java.util.Map;
 
 public class UserAddProductToMeal extends AppCompatActivity {
     FirestoreWrapper wrapper = new FirestoreWrapper();
-    Map<String, Object> userMeals = new HashMap<>();
-    ArrayList<Button> mealButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
     TableLayout table;

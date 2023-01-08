@@ -142,20 +142,20 @@ public class AdminMainScreen extends AppCompatActivity {
             row.addView(delete);
             usersButtons.add(user);
             deleteButtons.add(delete);
-            user.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent in;
-                    in = new Intent(AdminMainScreen.this, AdminUserMenus.class);
-                    System.out.println((String) user.getTag());
-                    System.out.println(adminName);
-                    in.putExtra("userMail", (String) user.getTag());
-                    in.putExtra("adminName", adminName);
-                    in.putExtra("isAdmin", isAdmin);
-                    startActivity(in);
-                    finish();
-                }
-            });
+//            user.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    Intent in;
+//                    in = new Intent(AdminMainScreen.this, AdminUserMenus.class);
+//                    System.out.println((String) user.getTag());
+//                    System.out.println(adminName);
+//                    in.putExtra("userMail", (String) user.getTag());
+//                    in.putExtra("adminName", adminName);
+//                    in.putExtra("isAdmin", isAdmin);
+//                    startActivity(in);
+//                    finish();
+//                }
+//            });
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
