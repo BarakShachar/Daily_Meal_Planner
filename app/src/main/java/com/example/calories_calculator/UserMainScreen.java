@@ -31,29 +31,25 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 public class UserMainScreen extends AppCompatActivity {
-    FirestoreWrapper wrapper = new FirestoreWrapper();
+    FirestoreWrapper.UserMainScreenWrapper wrapper = new FirestoreWrapper.UserMainScreenWrapper();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMenu;
     TextView hello;
     TableLayout table;
-    String userName;
+    public String userName;
     boolean isAdmin;
     String userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     ArrayList<Button> menuButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
-    Map<String, Object> userMenus = new HashMap<>();
+    public Map<String, Object> userMenus = new HashMap<>();
+    UserMainScreen screen = this;
 
 
     @Override
@@ -104,7 +100,7 @@ public class UserMainScreen extends AppCompatActivity {
         } else {
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
-        getUserName();
+        wrapper.getUserName(screen);
     }
 
     @Override
@@ -120,8 +116,6 @@ public class UserMainScreen extends AppCompatActivity {
         finish();
         return true;
     }
-
-
 
     void mainFunction(){
         addName();
@@ -172,7 +166,7 @@ public class UserMainScreen extends AppCompatActivity {
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    removeMenu((String) menu.getTag());
+                    wrapper.removeMenu((String) menu.getTag());
                     row.removeView(delete);
                     row.removeView(menu);
                 }
@@ -211,7 +205,7 @@ public class UserMainScreen extends AppCompatActivity {
                 }
                 else {
                     removeExistingMenus();
-                    addNewMenu(menuName);
+                    wrapper.addNewMenu(screen, menuName);
                 }
             }
         });
@@ -253,87 +247,5 @@ public class UserMainScreen extends AppCompatActivity {
             }
         });
         alertDialog.show();
-    }
-    void getUserName(){
-        wrapper.getDocument("users/"+userMail)
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        userName = (String) document.getData().get("name");
-                        String adminRequest = (String) document.getData().get("message");
-                        if (adminRequest != null){
-                            AdminRequest(adminRequest);
-                        }
-                        getUserMenus();
-                    }
-                }
-            }
-        });
-    }
-
-    void getUserMenus(){
-        wrapper.getCollectionRef("users/"+userMail+"/menus")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("mainActivity", "success get menus");
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                userMenus.put(document.getId(), document.getData());
-                            }
-                            mainFunction();
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-    void removeMenu(String menuName){
-        wrapper.getCollectionRef("users/" + userMail + "/menus/" + menuName + "/meals")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("mainActivity", "success get meals to delete");
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                document.getReference().delete();
-                            }
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-        wrapper.getDocumentRef("users/" + userMail + "/menus/"+menuName)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("mainActivity", "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("mainActivity", "Error deleting document", e);
-                    }
-                });
-    }
-
-    void addNewMenu(String menuName){
-        Map<String, Object> menu = new HashMap<>();
-        menu.put("totalCals", 0);
-        wrapper.setDocument("users/" + userMail + "/menus/"+menuName,menu)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        getUserMenus();
-                    }
-                });
     }
 }
