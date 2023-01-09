@@ -30,9 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserSuggestions extends AppCompatActivity {
-    FirestoreWrapper wrapper = new FirestoreWrapper();
+    FirestoreWrapper.UserSuggestionsWrapper wrapper = new FirestoreWrapper.UserSuggestionsWrapper(this);
     BottomNavigationView bottomNavigationView;
-    Map<String, Object> suggestionMenus = new HashMap<>();
+    public Map<String, Object> suggestionMenus = new HashMap<>();
     TableLayout table;
     DocumentReference adminRef = null;
     String userName;
@@ -79,7 +79,7 @@ public class UserSuggestions extends AppCompatActivity {
         else{
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
-        getGeneralSuggestionMenus();
+        wrapper.getGeneralSuggestionMenus();
     }
 
     @Override
@@ -129,59 +129,5 @@ public class UserSuggestions extends AppCompatActivity {
         }
     }
 
-    void getUserData(){
-        String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        DocumentReference docRef = wrapper.getDocumentRef("users/"+mail);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        userName = (String) document.getData().get("name");
-                        adminRef = (DocumentReference) document.getData().get("adminRef");
-                        if (adminRef != null){
-                            getAdminSuggestionMenus();
-                        }
-                        else{
-                            addMeals();
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    void getGeneralSuggestionMenus(){
-        wrapper.getCollectionRef("users/" + "admin@gmail.com/" + "menus")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                suggestionMenus.put(document.getId(), document.getData());
-                            }
-                            getUserData();
-                        }
-                    }
-                });
-    }
-
-    void getAdminSuggestionMenus(){
-        adminRef.collection("menus")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                suggestionMenus.put(document.getId(), document.getData());
-                            }
-                            addMeals();
-                        }
-                    }
-                });
-    }
 
 }

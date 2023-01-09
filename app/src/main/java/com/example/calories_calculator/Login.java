@@ -26,7 +26,7 @@ public class Login extends AppCompatActivity {
     TextView emailEditText, passwordEditText, signUpBtnEditText, forgotPassword;
     Button loginButton;
     ProgressBar loginProgressBar;
-    FirestoreWrapper wrapper = new FirestoreWrapper();
+    FirestoreWrapper.LoginWrapper wrapper = new FirestoreWrapper.LoginWrapper(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +83,7 @@ public class Login extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) { //login is successful
                     Toast.makeText(Login.this, "login successfully!", Toast.LENGTH_SHORT).show();
-                    getUserData(email);
+                    wrapper.getUserData(email);
                 } else {
                     changeInProgress(false);
                     Toast.makeText(Login.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
@@ -102,20 +102,6 @@ public class Login extends AppCompatActivity {
         }
     }
 
-    void getUserData(String mail){
-        wrapper.getDocument("users/"+mail)
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        connect((Boolean) document.getData().get("isAdmin"));
-                    }
-                }
-            }
-        });
-    }
 
     boolean validateData(String email, String password) {
         // validate the data we got from the user.

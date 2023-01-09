@@ -256,4 +256,355 @@ public class FirestoreWrapper {
                     });
         }
     }
+
+    public static class UserSuggestionsWrapper extends FirestoreWrapper{
+        UserSuggestionsWrapper thisWrapper = this;
+        UserSuggestions screen;
+        public UserSuggestionsWrapper(UserSuggestions screen){
+            super();
+            this.screen = screen;
+        }
+
+        void getAdminSuggestionMenus(){
+            screen.adminRef.collection("menus")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    screen.suggestionMenus.put(document.getId(), document.getData());
+                                }
+                                screen.addMeals();
+                            }
+                        }
+                    });
+        }
+
+        void getGeneralSuggestionMenus(){
+            this.getCollectionRef("users/" + "admin@gmail.com/" + "menus")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    screen.suggestionMenus.put(document.getId(), document.getData());
+                                }
+                                thisWrapper.getUserData();
+                            }
+                        }
+                    });
+        }
+
+        void getUserData(){
+            String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            DocumentReference docRef = this.getDocumentRef("users/"+mail);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            screen.userName = (String) document.getData().get("name");
+                            screen.adminRef = (DocumentReference) document.getData().get("adminRef");
+                            if (screen.adminRef != null){
+                                thisWrapper.getAdminSuggestionMenus();
+                            }
+                            else{
+                                screen.addMeals();
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    public static class UserSuggestionsMenuWrapper extends FirestoreWrapper{
+        UserSuggestionsMenuWrapper thisWrapper = this;
+        UserSuggestionsMenu screen;
+        public UserSuggestionsMenuWrapper(UserSuggestionsMenu screen){
+            super();
+            this.screen = screen;
+        }
+
+        void getAdminSuggestionMeals(){
+            screen.adminRef.collection("menus/" + screen.suggestionMenuName + "/meals")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                Log.d("mainActivity", "success get menus");
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    screen.suggestionMeals.put(document.getId(), document.getData());
+                                }
+                                screen.addMeals();
+                            } else {
+                                Log.d("mainActivity", "Error getting documents: ", task.getException());
+                            }
+                        }
+                    });
+        }
+
+        void getGeneralSuggestionMeals(){
+            this.getCollectionRef("users/" + "admin@gmail.com/" + "menus/" + screen.suggestionMenuName + "/meals")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                Log.d("mainActivity", "success get menus");
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    screen.suggestionMeals.put(document.getId(), document.getData());
+                                }
+                                thisWrapper.getUserData();
+                            } else {
+                                Log.d("mainActivity", "Error getting documents: ", task.getException());
+                            }
+                        }
+                    });
+        }
+
+        void updateMenuTotalCals(String menuName, Long totalMealCals){
+            DocumentReference menuDocRef = this.getDocumentRef("users/" + userMail +"/menus/"+menuName);
+            menuDocRef.update("totalCals", FieldValue.increment(totalMealCals));
+        }
+
+        void addToUserMenu(String menuName, String mealName, Map<String, Object> mealData){
+            Long totalAddCals = (Long) mealData.get("totalCals");
+            this.setDocument("users/" + userMail + "/menus/" + menuName + "/meals/"+mealName, mealData)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("mainActivity", "user successfully written to DB!");
+                            thisWrapper.updateMenuTotalCals(menuName, totalAddCals);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("mainActivity", "Error writing user document", e);
+                        }
+                    });
+        }
+
+        void getUserExistingMenus(){
+            this.getCollectionRef("users/" + userMail + "/menus")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                Log.d("mainActivity", "success get menus");
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    screen.userExistingMenus.add(document.getId());
+                                }
+                            } else {
+                                Log.d("mainActivity", "Error getting documents: ", task.getException());
+                            }
+                        }
+                    });
+        }
+
+        void getUserData(){
+            DocumentReference docRef = this.getDocumentRef("users/"+userMail);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            screen.userName = (String) document.getData().get("name");
+                            screen.adminRef = (DocumentReference) document.getData().get("adminRef");
+                            if (screen.adminRef != null){
+                                thisWrapper.getAdminSuggestionMeals();
+                            }
+                            else{
+                                screen.addMeals();
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    public static class UserAddProductToMealWrapper extends FirestoreWrapper {
+        UserAddProductToMealWrapper thisWrapper = this;
+        UserAddProductToMeal screen;
+
+        public UserAddProductToMealWrapper(UserAddProductToMeal screen) {
+            super();
+            this.screen = screen;
+        }
+
+        void removeProduct(String productName,Long oldAmount, Long calories){
+            DocumentReference docRef = this.getDocumentRef("users/"+screen.mail+"/menus/"+screen.menuName+"/meals/"+screen.mealName);
+            DocumentReference itemRef = this.getDocumentRef("foods/"+productName);
+            Map<String, Object> newItem = new HashMap<>();
+            newItem.put("foodRef", itemRef);
+            newItem.put("quantity",oldAmount.intValue());
+            docRef.update("foods", FieldValue.arrayRemove(newItem));
+            Long totalAddCals = (-1)*calories;
+            docRef.update("totalCals", FieldValue.increment(totalAddCals));
+            docRef.getParent().getParent().update("totalCals", FieldValue.increment(totalAddCals));
+            Toast.makeText(screen, oldAmount + " " +productName +" removed from your meal", Toast.LENGTH_SHORT).show();
+            screen.userProducts.clear();
+            thisWrapper.getUserProducts();
+        }
+
+        void addAmountProduct(String productName,Long newAmount,Long oldAmount, Long calories){
+            DocumentReference docRef = this.getDocumentRef("users/"+screen.mail+"/menus/"+screen.menuName+"/meals/"+screen.mealName);
+            DocumentReference itemRef = this.getDocumentRef("foods/"+productName);
+            Map<String, Object> newItem = new HashMap<>();
+            newItem.put("foodRef", itemRef);
+            newItem.put("quantity",oldAmount.intValue());
+            docRef.update("foods", FieldValue.arrayRemove(newItem));
+            newItem.clear();
+            newItem.put("foodRef", itemRef);
+            newItem.put("quantity", newAmount.intValue());
+            docRef.update("foods", FieldValue.arrayUnion(newItem));
+            Long totalAddCals = (newAmount-oldAmount)*calories;
+            docRef.update("totalCals", FieldValue.increment(totalAddCals));
+            docRef.getParent().getParent().update("totalCals", FieldValue.increment(totalAddCals));
+            Toast.makeText(screen, productName +" amount updated to " + newAmount + " in your meal", Toast.LENGTH_SHORT).show();
+            screen.userProducts.clear();
+            thisWrapper.getUserProducts();
+        }
+
+        void getProductsCalories(DocumentReference foods, Map<String, Object> mealItem, int totalItems){
+            foods.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Map<String,Object> product = document.getData();
+                            mealItem.put("calories",product.get("calories"));
+                            screen.userProducts.add(mealItem);
+                            if (screen.userProducts.size() == totalItems){
+                                screen.addMealsProducts();
+                            }
+                            Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
+                        } else {
+                            Log.d("mainActivity", "No such document");
+                        }
+                    } else {
+                        Log.d("mainActivity", "get failed with ", task.getException());
+                    }
+                }
+            });
+        }
+
+        void getUserProducts(){
+            this.getDocument("users/" + screen.mail + "/menus/" + screen.menuName + "/meals/"+screen.mealName)
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    Log.d("mainActivity", "DocumentSnapshot data: " + document.getData());
+                                    ArrayList<Map<String, Object>> mealProducts = (ArrayList<Map<String, Object>>) document.getData().get("foods");
+                                    for (int i = 0; i < mealProducts.size(); i++) {
+                                        DocumentReference food = (DocumentReference) mealProducts.get(i).get("foodRef");
+                                        thisWrapper.getProductsCalories(food, mealProducts.get(i), mealProducts.size());
+                                    }
+                                }
+                            }
+                        }
+                    });
+        }
+    }
+
+    public static class MenuPageWrapper extends FirestoreWrapper {
+        MenuPageWrapper thisWrapper = this;
+        MenuPage screen;
+
+        public MenuPageWrapper(MenuPage screen) {
+            super();
+            this.screen = screen;
+        }
+
+        void addNewMeal(String mealName){
+            Map<String, Object> meal = new HashMap<>();
+            ArrayList<Map<String, Object>> foods = new ArrayList<>();
+            meal.put("totalCals", 0);
+            meal.put("foods", foods);
+            this.setDocument("users/" + userMail + "/menus/" + screen.menuName + "/meals/"+mealName, meal)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            thisWrapper.getUserMeals();
+                        }
+                    });
+        }
+
+        void removeMeal(String mealName){
+            Long totalMealCals = ((Long) screen.userMeals.get("totalCals")) * -1;
+            this.getDocumentRef("users/" + userMail + "/menus/" + screen.menuName + "/meals/"+mealName)
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("mainActivity", "DocumentSnapshot successfully deleted!");
+                            thisWrapper.updateMenuTotalCals(totalMealCals);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("mainActivity", "Error deleting document", e);
+                        }
+                    });
+        }
+
+        void updateMenuTotalCals(Long totalMealCals){
+            DocumentReference menuDocRef = this.getDocumentRef("users/" +userMail+"/menus/"+screen.menuName);
+            menuDocRef.update("totalCals", FieldValue.increment(totalMealCals));
+        }
+
+        void getUserMeals(){
+            this.getCollectionRef("users/" + userMail + "/menus/" + screen.menuName + "/meals")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    screen.userMeals.put(document.getId(), document.getData());
+                                }
+                                screen.mainFunction();
+                            }
+                        }
+                    });
+        }
+    }
+
+    public static class LoginWrapper extends FirestoreWrapper {
+        LoginWrapper thisWrapper = this;
+        Login screen;
+
+        public LoginWrapper(Login screen) {
+            super();
+            this.screen = screen;
+        }
+
+        void getUserData(String mail){
+            this.getDocument("users/"+mail)
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    screen.connect((Boolean) document.getData().get("isAdmin"));
+                                }
+                            }
+                        }
+                    });
+        }
+    }
 }

@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserSuggestionsMenu extends AppCompatActivity {
-    FirestoreWrapper wrapper = new FirestoreWrapper();
+    FirestoreWrapper.UserSuggestionsMenuWrapper wrapper = new FirestoreWrapper.UserSuggestionsMenuWrapper(this);
     BottomNavigationView bottomNavigationView;
     Map<String, Object> suggestionMeals = new HashMap<>();
     TableLayout table;
@@ -101,8 +101,8 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         else{
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
-        getGeneralSuggestionMeals();
-        getUserExistingMenus();
+        wrapper.getGeneralSuggestionMeals();
+        wrapper.getUserExistingMenus();
     }
 
     @Override
@@ -185,7 +185,7 @@ public class UserSuggestionsMenu extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String mealName = editMeal.getText().toString();
-                addToUserMenu(menuName, mealName, (Map<String, Object>) suggestionMeals.get(selectedMeal));
+                wrapper.addToUserMenu(menuName, mealName, (Map<String, Object>) suggestionMeals.get(selectedMeal));
             }
         });
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -254,107 +254,4 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         alertDialog.show();
 
     }
-
-    void getUserData(){
-        DocumentReference docRef = wrapper.getDocumentRef("users/"+userMail);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        userName = (String) document.getData().get("name");
-                        adminRef = (DocumentReference) document.getData().get("adminRef");
-                        if (adminRef != null){
-                            getAdminSuggestionMeals();
-                        }
-                        else{
-                            addMeals();
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    void getUserExistingMenus(){
-        wrapper.getCollectionRef("users/" + userMail + "/menus")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("mainActivity", "success get menus");
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                userExistingMenus.add(document.getId());
-                            }
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-    void addToUserMenu(String menuName, String mealName, Map<String, Object> mealData){
-        Long totalAddCals = (Long) mealData.get("totalCals");
-        wrapper.setDocument("users/" + userMail + "/menus/" + menuName + "/meals/"+mealName, mealData)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("mainActivity", "user successfully written to DB!");
-                        updateMenuTotalCals(menuName, totalAddCals);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("mainActivity", "Error writing user document", e);
-                    }
-                });
-    }
-
-    void updateMenuTotalCals(String menuName, Long totalMealCals){
-        DocumentReference menuDocRef = wrapper.getDocumentRef("users/" + userMail +"/menus/"+menuName);
-        menuDocRef.update("totalCals", FieldValue.increment(totalMealCals));
-    }
-
-    void getGeneralSuggestionMeals(){
-        wrapper.getCollectionRef("users/" + "admin@gmail.com/" + "menus/" + suggestionMenuName + "/meals")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("mainActivity", "success get menus");
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                suggestionMeals.put(document.getId(), document.getData());
-                            }
-                            getUserData();
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-    void getAdminSuggestionMeals(){
-        adminRef.collection("menus/" + suggestionMenuName + "/meals")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("mainActivity", "success get menus");
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                suggestionMeals.put(document.getId(), document.getData());
-                            }
-                            addMeals();
-                        } else {
-                            Log.d("mainActivity", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-
 }
