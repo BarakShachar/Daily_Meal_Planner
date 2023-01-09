@@ -21,10 +21,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpResponse;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.NameValuePair;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.HttpClient;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.entity.UrlEncodedFormEntity;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.methods.HttpPost;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.impl.client.HttpClients;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.message.BasicNameValuePair;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Register extends AppCompatActivity {
 
@@ -112,23 +119,37 @@ public class Register extends AppCompatActivity {
     }
 
     void createAccountInFirebaseDB(String username, String email, boolean isAdmin){
-        Map<String, Object> user = new HashMap<>();
-        user.put("name", username);
-        user.put("isAdmin", isAdmin);
-        user.put("adminMail", null);
-        wrapper.setDocument("users/"+email, user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        signOut();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        signOut();
-                    }
-                });
+        try {
+            HttpClient httpclient = HttpClients.createDefault();
+            HttpPost httppost = new HttpPost("https://fastapi-production-8b81.up.railway.app/signup/");
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
+            nameValuePairs.add(new BasicNameValuePair("name", username));
+            nameValuePairs.add(new BasicNameValuePair("mail", email));
+            nameValuePairs.add(new BasicNameValuePair("isAdmin", Boolean.toString(isAdmin)));
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            HttpResponse response = httpclient.execute(httppost);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+//        Map<String, Object> user = new HashMap<>();
+//        user.put("name", username);
+//        user.put("isAdmin", isAdmin);
+//        user.put("adminMail", null);
+//        wrapper.setDocument("users/"+email, user)
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        signOut();
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        signOut();
+//                    }
+//                });
     }
 
     void signOut(){
