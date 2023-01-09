@@ -24,9 +24,14 @@ import java.util.Map;
 
 public class FirestoreWrapper {
     private final FirebaseFirestore db;
-    String userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+    String userMail;
 
     public FirestoreWrapper(){
+        this.db = FirebaseFirestore.getInstance();
+        this.userMail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+    }
+
+    public FirestoreWrapper(Boolean login){
         this.db = FirebaseFirestore.getInstance();
     }
 
@@ -588,7 +593,7 @@ public class FirestoreWrapper {
         Login screen;
 
         public LoginWrapper(Login screen) {
-            super();
+            super(true);
             this.screen = screen;
         }
 
@@ -605,6 +610,71 @@ public class FirestoreWrapper {
                             }
                         }
                     });
+        }
+    }
+
+    public static class AdminMainScreenWrapper extends FirestoreWrapper {
+        AdminMainScreenWrapper thisWrapper = this;
+        AdminMainScreen screen;
+
+        public AdminMainScreenWrapper(AdminMainScreen screen) {
+            super();
+            this.screen = screen;
+        }
+
+        void getAdminData() {
+            this.getDocument("users/" + userMail)
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    screen.adminName = (String) document.getData().get("name");
+                                    ArrayList<DocumentReference> userList = (ArrayList<DocumentReference>) document.getData().get("users");
+                                    if (userList != null){
+                                        for (int i =0; i< userList.size();i++){
+                                            screen.adminUsers.add(userList.get(i).getId());
+                                        }
+                                    }
+                                    screen.addUsers();
+                                }
+                            }
+                        }
+                    });
+        }
+
+        void addNewUser(String userMail){
+            DocumentReference docRef = this.getDocumentRef("users/" + userMail);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            boolean isAdmin = (boolean) document.getData().get("isAdmin");
+                            if (screen.adminUsers.contains(userMail)){
+                                Toast.makeText(screen, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
+                            }
+                            if (!isAdmin){
+                                docRef.update("message", userMail);
+                            }
+                            else{
+                                Toast.makeText(screen, "This user is admin", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(screen, "This user doesn't exist", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            });
+        }
+
+        void removeUser(String userMail) {
+            DocumentReference admin = this.getDocumentRef("users/" + userMail);
+            DocumentReference user = this.getDocumentRef("users/" + userMail);
+            admin.update("users", FieldValue.arrayRemove(user));
+            user.update("adminRef", FieldValue.delete());
         }
     }
 }

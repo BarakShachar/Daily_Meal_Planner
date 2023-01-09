@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -16,21 +15,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpResponse;
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.NameValuePair;
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.HttpClient;
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.entity.UrlEncodedFormEntity;
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.methods.HttpPost;
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.impl.client.HttpClients;
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.message.BasicNameValuePair;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 
 public class Register extends AppCompatActivity {
@@ -39,7 +27,6 @@ public class Register extends AppCompatActivity {
     Button registerButton, back;
     ProgressBar progressBar;
     CheckBox admin;
-    FirestoreWrapper wrapper = new FirestoreWrapper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,41 +106,12 @@ public class Register extends AppCompatActivity {
     }
 
     void createAccountInFirebaseDB(String username, String email, boolean isAdmin){
-        try {
-            HttpClient httpclient = HttpClients.createDefault();
-            HttpPost httppost = new HttpPost("https://fastapi-production-8b81.up.railway.app/signup/");
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
-            nameValuePairs.add(new BasicNameValuePair("name", username));
-            nameValuePairs.add(new BasicNameValuePair("mail", email));
-            nameValuePairs.add(new BasicNameValuePair("isAdmin", Boolean.toString(isAdmin)));
-            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-            HttpResponse response = httpclient.execute(httppost);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-
-//        Map<String, Object> user = new HashMap<>();
-//        user.put("name", username);
-//        user.put("isAdmin", isAdmin);
-//        user.put("adminMail", null);
-//        wrapper.setDocument("users/"+email, user)
-//                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) {
-//                        signOut();
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        signOut();
-//                    }
-//                });
-    }
-
-    void signOut(){
-        FirebaseAuth.getInstance().signOut();
+        HashMap<String, String> user = new HashMap<>();
+        user.put("name", username);
+        user.put("isAdmin", Boolean.toString(isAdmin));
+        user.put("mail", email);
+        APICall call = new APICall(user);
+        call.execute("https://fastapi-production-8b81.up.railway.app/signup/");
     }
 
     void changeInProgress(boolean inProgress){

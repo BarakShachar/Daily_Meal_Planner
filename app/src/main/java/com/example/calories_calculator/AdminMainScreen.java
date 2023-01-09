@@ -40,9 +40,8 @@ public class AdminMainScreen extends AppCompatActivity {
     ArrayList<Button> usersButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     ArrayList<String> adminUsers = new ArrayList<>();
-    String mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     boolean isAdmin;
-    FirestoreWrapper wrapper = new FirestoreWrapper();
+    FirestoreWrapper.AdminMainScreenWrapper wrapper = new FirestoreWrapper.AdminMainScreenWrapper(this);
 
 
     @Override
@@ -88,7 +87,7 @@ public class AdminMainScreen extends AppCompatActivity {
         else{
             bottomNavigationView.getMenu().removeItem(R.id.admin_users);
         }
-        getAdminData();
+        wrapper.getAdminData();
     }
 
     @Override
@@ -145,7 +144,7 @@ public class AdminMainScreen extends AppCompatActivity {
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    removeUser((String) user.getTag());
+                    wrapper.removeUser((String) user.getTag());
                     row.removeView(delete);
                     row.removeView(user);
                 }
@@ -172,7 +171,7 @@ public class AdminMainScreen extends AppCompatActivity {
                     dialogInterface.dismiss();
                 } else {
                     removeExistingUsers();
-                    addNewUser(menuName);
+                    wrapper.addNewUser(menuName);
                 }
             }
         });
@@ -183,60 +182,5 @@ public class AdminMainScreen extends AppCompatActivity {
             }
         });
         alertDialog.show();
-    }
-
-
-    void getAdminData() {
-        wrapper.getDocument("users/" + mail)
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        adminName = (String) document.getData().get("name");
-                        ArrayList<DocumentReference> userList = (ArrayList<DocumentReference>) document.getData().get("users");
-                        if (userList != null){
-                            for (int i =0; i< userList.size();i++){
-                                adminUsers.add(userList.get(i).getId());
-                            }
-                        }
-                        addUsers();
-                    }
-                }
-            }
-        });
-    }
-    void addNewUser(String userMail){
-        DocumentReference docRef = wrapper.getDocumentRef("users/" + userMail);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        boolean isAdmin = (boolean) document.getData().get("isAdmin");
-                        if (adminUsers.contains(userMail)){
-                            Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
-                        }
-                        if (!isAdmin){
-                            docRef.update("message", mail);
-                        }
-                        else{
-                            Toast.makeText(AdminMainScreen.this, "This user is admin", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(AdminMainScreen.this, "This user doesn't exist", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
-    }
-
-    void removeUser(String userMail) {
-        DocumentReference admin = wrapper.getDocumentRef("users/" + mail);
-        DocumentReference user = wrapper.getDocumentRef("users/" + userMail);
-        admin.update("users", FieldValue.arrayRemove(user));
-        user.update("adminRef", FieldValue.delete());
     }
 }
