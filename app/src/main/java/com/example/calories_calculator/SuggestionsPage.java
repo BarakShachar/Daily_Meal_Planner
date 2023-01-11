@@ -1,12 +1,10 @@
 package com.example.calories_calculator;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,21 +13,15 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserSuggestions extends AppCompatActivity {
+public class SuggestionsPage extends AppCompatActivity {
     FirestoreWrapper.UserSuggestionsWrapper wrapper = new FirestoreWrapper.UserSuggestionsWrapper(this);
     BottomNavigationView bottomNavigationView;
     public Map<String, Object> suggestionMenus = new HashMap<>();
@@ -40,7 +32,7 @@ public class UserSuggestions extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_user_suggestions);
+        setContentView(R.layout.fragment_suggestions_page);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -50,13 +42,13 @@ public class UserSuggestions extends AppCompatActivity {
                 Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in = new Intent(getApplicationContext(), MainPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_search:
-                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in = new Intent(getApplicationContext(), Products.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
@@ -64,7 +56,7 @@ public class UserSuggestions extends AppCompatActivity {
                     case R.id.user_suggestions:
                         break;
                     case R.id.admin_users:
-                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in = new Intent(getApplicationContext(), UsersPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
@@ -119,7 +111,7 @@ public class UserSuggestions extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent in;
-                    in = new Intent(UserSuggestions.this, UserSuggestionsMenu.class);
+                    in = new Intent(SuggestionsPage.this, MenuSuggestionsPage.class);
                     in.putExtra("suggestionMenuName", (String) menu.getTag());
                     in.putExtra("isAdmin", isAdmin);
                     startActivity(in);

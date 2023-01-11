@@ -1,6 +1,5 @@
 package com.example.calories_calculator;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,18 +20,10 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,25 +67,25 @@ public class MenuPage extends AppCompatActivity {
                 Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in = new Intent(getApplicationContext(), MainPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_search:
-                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in = new Intent(getApplicationContext(), Products.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_suggestions:
-                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in = new Intent(getApplicationContext(), SuggestionsPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.admin_users:
-                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in = new Intent(getApplicationContext(), UsersPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
@@ -159,7 +149,7 @@ public class MenuPage extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Intent in;
-                    in = new Intent(MenuPage.this, UserAddProductToMeal.class);
+                    in = new Intent(MenuPage.this, MealPage.class);
                     in.putExtra("userName", userName);
                     in.putExtra("mealName", entry.getKey());
                     in.putExtra("menuName", menuName);

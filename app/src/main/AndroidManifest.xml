@@ -14,7 +14,7 @@
         android:theme="@style/Theme.CaloriesCalculator"
         tools:targetApi="31">
         <activity
-            android:name=".UserAddProductToMeal"
+            android:name=".MealPage"
             android:exported="false"
             android:parentActivityName=".MenuPage">
             <meta-data
@@ -22,15 +22,15 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".UserSuggestionsMenu"
+            android:name=".MenuSuggestionsPage"
             android:exported="false"
-            android:parentActivityName=".UserSuggestions">
+            android:parentActivityName=".SuggestionsPage">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".AdminMainScreen"
+            android:name=".UsersPage"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -39,27 +39,27 @@
         <activity
             android:name=".MenuPage"
             android:exported="false"
-            android:parentActivityName=".UserMainScreen">
+            android:parentActivityName=".MainPage">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".UserSuggestions"
+            android:name=".SuggestionsPage"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".UserSearch"
+            android:name=".Products"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".UserMainScreen"
+            android:name=".MainPage"
             android:exported="true">
             <meta-data
                 android:name="android.app.lib_name"

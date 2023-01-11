@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,19 +19,14 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 
-public class AdminMainScreen extends AppCompatActivity {
+public class UsersPage extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewUsers;
     TableLayout table;
@@ -47,7 +41,7 @@ public class AdminMainScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_main_screen);
+        setContentView(R.layout.activity_users_page);
         addNewUsers = findViewById(R.id.addNewUser);
         addNewUsers.setOnClickListener(v -> getUsersFromAdmin());
         bottomNavigationView = findViewById(R.id.BottomNavigation);
@@ -58,19 +52,19 @@ public class AdminMainScreen extends AppCompatActivity {
                 Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in = new Intent(getApplicationContext(), MainPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_search:
-                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in = new Intent(getApplicationContext(), Products.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_suggestions:
-                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in = new Intent(getApplicationContext(), SuggestionsPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
@@ -153,9 +147,9 @@ public class AdminMainScreen extends AppCompatActivity {
     }
 
     void getUsersFromAdmin() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(AdminMainScreen.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UsersPage.this);
         alertDialog.setMessage("enter user name");
-        final EditText editMenu = new EditText(AdminMainScreen.this);
+        final EditText editMenu = new EditText(UsersPage.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -167,7 +161,7 @@ public class AdminMainScreen extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 String menuName = editMenu.getText().toString();
                 if (adminUsers.contains(menuName)) {
-                    Toast.makeText(AdminMainScreen.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UsersPage.this, "You are already the admin of this user.", Toast.LENGTH_SHORT).show();
                     dialogInterface.dismiss();
                 } else {
                     removeExistingUsers();

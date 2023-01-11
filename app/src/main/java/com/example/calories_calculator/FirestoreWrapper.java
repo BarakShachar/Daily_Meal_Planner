@@ -58,7 +58,7 @@ public class FirestoreWrapper {
             super();
         }
 
-        public void getUserMenus(UserMainScreen screen){
+        public void getUserMenus(MainPage screen){
             this.getCollectionRef("users/"+userMail+"/menus")
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -110,7 +110,7 @@ public class FirestoreWrapper {
                     });
         }
 
-        void addNewMenu(UserMainScreen screen,String menuName){
+        void addNewMenu(MainPage screen, String menuName){
             Map<String, Object> menu = new HashMap<>();
             menu.put("totalCals", 0);
             this.setDocument("users/" + userMail + "/menus/"+menuName,menu)
@@ -122,7 +122,7 @@ public class FirestoreWrapper {
                     });
         }
 
-        public void getUserName(UserMainScreen screen){
+        public void getUserName(MainPage screen){
             this.getDocument("users/"+userMail)
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -146,8 +146,8 @@ public class FirestoreWrapper {
 
     public static class UserSearchWrapper extends FirestoreWrapper{
         UserSearchWrapper thisWrapper = this;
-        UserSearch screen;
-        public UserSearchWrapper(UserSearch screen){
+        Products screen;
+        public UserSearchWrapper(Products screen){
             super();
             this.screen = screen;
         }
@@ -264,8 +264,8 @@ public class FirestoreWrapper {
 
     public static class UserSuggestionsWrapper extends FirestoreWrapper{
         UserSuggestionsWrapper thisWrapper = this;
-        UserSuggestions screen;
-        public UserSuggestionsWrapper(UserSuggestions screen){
+        SuggestionsPage screen;
+        public UserSuggestionsWrapper(SuggestionsPage screen){
             super();
             this.screen = screen;
         }
@@ -328,8 +328,8 @@ public class FirestoreWrapper {
 
     public static class UserSuggestionsMenuWrapper extends FirestoreWrapper{
         UserSuggestionsMenuWrapper thisWrapper = this;
-        UserSuggestionsMenu screen;
-        public UserSuggestionsMenuWrapper(UserSuggestionsMenu screen){
+        MenuSuggestionsPage screen;
+        public UserSuggestionsMenuWrapper(MenuSuggestionsPage screen){
             super();
             this.screen = screen;
         }
@@ -438,9 +438,9 @@ public class FirestoreWrapper {
 
     public static class UserAddProductToMealWrapper extends FirestoreWrapper {
         UserAddProductToMealWrapper thisWrapper = this;
-        UserAddProductToMeal screen;
+        MealPage screen;
 
-        public UserAddProductToMealWrapper(UserAddProductToMeal screen) {
+        public UserAddProductToMealWrapper(MealPage screen) {
             super();
             this.screen = screen;
         }
@@ -615,9 +615,9 @@ public class FirestoreWrapper {
 
     public static class AdminMainScreenWrapper extends FirestoreWrapper {
         AdminMainScreenWrapper thisWrapper = this;
-        AdminMainScreen screen;
+        UsersPage screen;
 
-        public AdminMainScreenWrapper(AdminMainScreen screen) {
+        public AdminMainScreenWrapper(UsersPage screen) {
             super();
             this.screen = screen;
         }

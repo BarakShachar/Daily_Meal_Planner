@@ -1,6 +1,5 @@
 package com.example.calories_calculator;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,25 +21,16 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserSuggestionsMenu extends AppCompatActivity {
+public class MenuSuggestionsPage extends AppCompatActivity {
     FirestoreWrapper.UserSuggestionsMenuWrapper wrapper = new FirestoreWrapper.UserSuggestionsMenuWrapper(this);
     BottomNavigationView bottomNavigationView;
     Map<String, Object> suggestionMeals = new HashMap<>();
@@ -57,7 +46,7 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_suggestions_menu);
+        setContentView(R.layout.activity_menu_suggestions_page);
         suggestionMenuName = (String) getIntent().getExtras().get("suggestionMenuName");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
@@ -68,25 +57,25 @@ public class UserSuggestionsMenu extends AppCompatActivity {
                 Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in = new Intent(getApplicationContext(), MainPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_search:
-                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in = new Intent(getApplicationContext(), Products.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_suggestions:
-                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in = new Intent(getApplicationContext(), SuggestionsPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.admin_users:
-                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in = new Intent(getApplicationContext(), UsersPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
@@ -172,9 +161,9 @@ public class UserSuggestionsMenu extends AppCompatActivity {
     }
 
     void getMealNameFromUser(String menuName, String selectedMeal){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestionsMenu.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MenuSuggestionsPage.this);
         alertDialog.setMessage("enter the meal name");
-        final EditText editMeal = new EditText(UserSuggestionsMenu.this);
+        final EditText editMeal = new EditText(MenuSuggestionsPage.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -202,11 +191,11 @@ public class UserSuggestionsMenu extends AppCompatActivity {
         if (foodProducts == null){
             return;
         }
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSuggestionsMenu.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MenuSuggestionsPage.this);
         alertDialog.setTitle("The products of the meal:");
         LinearLayout rootLayout = new LinearLayout(this);
         rootLayout.setOrientation(LinearLayout.VERTICAL);
-        ScrollView scrollView = new ScrollView(UserSuggestionsMenu.this);
+        ScrollView scrollView = new ScrollView(MenuSuggestionsPage.this);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         TableLayout table = new TableLayout(this);

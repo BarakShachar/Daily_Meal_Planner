@@ -1,6 +1,5 @@
 package com.example.calories_calculator;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,10 +20,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
@@ -37,7 +31,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class UserMainScreen extends AppCompatActivity {
+public class MainPage extends AppCompatActivity {
     FirestoreWrapper.UserMainScreenWrapper wrapper = new FirestoreWrapper.UserMainScreenWrapper();
     BottomNavigationView bottomNavigationView;
     FloatingActionButton addNewMenu;
@@ -49,13 +43,13 @@ public class UserMainScreen extends AppCompatActivity {
     ArrayList<Button> menuButtons = new ArrayList<>();
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     public Map<String, Object> userMenus = new HashMap<>();
-    UserMainScreen screen = this;
+    MainPage screen = this;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_main_screen);
+        setContentView(R.layout.activity_main_page);
         addNewMenu = findViewById(R.id.addNewMenu);
         isAdmin = (boolean) getIntent().getExtras().get("isAdmin");
         bottomNavigationView = findViewById(R.id.bottomNavigation);
@@ -74,19 +68,19 @@ public class UserMainScreen extends AppCompatActivity {
                     case R.id.user_home:
                         break;
                     case R.id.user_search:
-                        in = new Intent(getApplicationContext(), UserSearch.class);
+                        in = new Intent(getApplicationContext(), Products.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0, 0);
                         break;
                     case R.id.user_suggestions:
-                        in = new Intent(getApplicationContext(), UserSuggestions.class);
+                        in = new Intent(getApplicationContext(), SuggestionsPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0, 0);
                         break;
                     case R.id.admin_users:
-                        in = new Intent(getApplicationContext(), AdminMainScreen.class);
+                        in = new Intent(getApplicationContext(), UsersPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0, 0);
@@ -175,7 +169,7 @@ public class UserMainScreen extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent in;
-                    in = new Intent(UserMainScreen.this, MenuPage.class);
+                    in = new Intent(MainPage.this, MenuPage.class);
                     in.putExtra("menuName", (String) menu.getTag());
                     in.putExtra("userName", userName);
                     in.putExtra("isAdmin", isAdmin);
@@ -187,9 +181,9 @@ public class UserMainScreen extends AppCompatActivity {
     }
 
     void getMenuNameFromUser(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserMainScreen.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainPage.this);
         alertDialog.setMessage("enter menu name");
-        final EditText editMenu = new EditText(UserMainScreen.this);
+        final EditText editMenu = new EditText(MainPage.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -227,7 +221,7 @@ public class UserMainScreen extends AppCompatActivity {
 
     void AdminRequest(String adminMail){
         DocumentReference user = wrapper.getDocumentRef("users/"+userMail);
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserMainScreen.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainPage.this);
         alertDialog.setMessage("Admin: " + adminMail + " Wants to add you to their users.");
         alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override

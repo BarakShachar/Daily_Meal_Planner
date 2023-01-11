@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -18,9 +17,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Login extends AppCompatActivity {
     TextView emailEditText, passwordEditText, signUpBtnEditText, forgotPassword;
@@ -120,7 +116,7 @@ public class Login extends AppCompatActivity {
     public void connect(Boolean isAdmin) {
         //we need to add a check if the user is admin or not. after that we will send him to the right screen//
         Intent in;
-        in = new Intent(Login.this, UserMainScreen.class);
+        in = new Intent(Login.this, MainPage.class);
         in.putExtra("isAdmin", isAdmin);
         changeInProgress(false);
         startActivity(in);

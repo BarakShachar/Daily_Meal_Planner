@@ -4,42 +4,69 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AdminMainScreen">
+    tools:context=".MainPage">
+
 
     <TextView
-        android:id="@+id/users"
+        android:id="@+id/Hello"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="15dp"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/Menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_below="@id/Hello"
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="10dp"
         android:padding="10dp"
-        android:text="My Users"
+        android:text="My Menus"
         android:textSize="35dp"
         android:textStyle="bold"
         android:textColor="#009688"
         android:gravity="center"
         />
 
+    <TextView
+        android:id="@+id/Description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Menu"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="15dp"
+        android:gravity="center"
+        android:text="Create your own menus and add some meals to them"
+        android:textColor="#009688"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+
+
     <FrameLayout
-        android:id="@+id/admin_frame"
+        android:id="@+id/user_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/window"
-        app:layout_constraintBottom_toTopOf="@+id/BottomNavigation"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
     </FrameLayout>
 
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/BottomNavigation"
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         android:background="@color/white"
         app:menu="@menu/user_menu">
 
@@ -50,13 +77,16 @@
         android:id="@+id/window"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/users"
+        android:layout_below="@id/Description"
+        android:layout_above="@+id/bottomNavigation"
         >
 
         <ScrollView
             android:id="@+id/Scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:layout_anchor="@+id/Scroll"
+            app:layout_anchorGravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -65,20 +95,21 @@
             <TableLayout
                 android:id="@+id/Table"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-        </TableLayout>
+                android:layout_height="match_parent"></TableLayout>
         </ScrollView>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addNewUser"
+        android:id="@+id/addNewMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_above="@+id/BottomNavigation"
+        android:layout_above="@+id/bottomNavigation"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="0dp"
         android:clickable="true"
         app:srcCompat="@android:drawable/ic_input_add" />
+
+
 </RelativeLayout>

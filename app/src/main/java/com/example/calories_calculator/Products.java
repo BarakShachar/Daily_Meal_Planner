@@ -5,11 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,25 +19,16 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TableLayout;
 import android.widget.TableRow;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserSearch extends AppCompatActivity implements View.OnClickListener {
+public class Products extends AppCompatActivity implements View.OnClickListener {
     FirestoreWrapper.UserSearchWrapper wrapper = new FirestoreWrapper.UserSearchWrapper(this);
     BottomNavigationView bottomNavigationView;
     Button vegetables, fruits, dairy, meatAndFish,cereal, breads ;
@@ -57,7 +46,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_user_search);
+        setContentView(R.layout.fragment_products);
         vegetables = findViewById(R.id.vegetables);
         vegetables.setOnClickListener(this);
         fruits = findViewById(R.id.fruits);
@@ -80,7 +69,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                 Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in = new Intent(getApplicationContext(), MainPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
@@ -88,13 +77,13 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
                     case R.id.user_search:
                         break;
                     case R.id.user_suggestions:
-                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in = new Intent(getApplicationContext(), SuggestionsPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.admin_users:
-                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in = new Intent(getApplicationContext(), UsersPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
@@ -169,7 +158,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
             menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
-                    Intent in = new Intent(UserSearch.this, UserMainScreen.class);
+                    Intent in = new Intent(Products.this, MainPage.class);
                     in.putExtra("isAdmin", isAdmin);
                     startActivity(in);
                     return true;
@@ -199,7 +188,7 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
             menus.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
-                    Intent in = new Intent(UserSearch.this, MenuPage.class);
+                    Intent in = new Intent(Products.this, MenuPage.class);
                     in.putExtra("mainActivity", menuSelected);
                     in.putExtra("isAdmin", isAdmin);
                     startActivity(in);
@@ -224,9 +213,9 @@ public class UserSearch extends AppCompatActivity implements View.OnClickListene
     }
 
     void getItemQuantity(String menuName, String mealName, String itemName){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserSearch.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Products.this);
         alertDialog.setMessage("How much "+itemName + " you want to add?");
-        final EditText editQuantity = new EditText(UserSearch.this);
+        final EditText editQuantity = new EditText(Products.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT

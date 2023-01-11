@@ -1,6 +1,5 @@
 package com.example.calories_calculator;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,37 +7,29 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class UserAddProductToMeal extends AppCompatActivity {
+public class MealPage extends AppCompatActivity {
     FirestoreWrapper.UserAddProductToMealWrapper wrapper = new FirestoreWrapper.UserAddProductToMealWrapper(this);
     ArrayList<ImageButton> deleteButtons = new ArrayList<>();
     BottomNavigationView bottomNavigationView;
@@ -53,7 +44,7 @@ public class UserAddProductToMeal extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_add_product_to_meal);
+        setContentView(R.layout.activity_meal_page);
         mealName = (String) getIntent().getExtras().get("mealName");
         menuName = (String) getIntent().getExtras().get("menuName");
         userName = (String) getIntent().getExtras().get("userName");
@@ -67,25 +58,25 @@ public class UserAddProductToMeal extends AppCompatActivity {
                 Intent in;
                 switch(item.getItemId()) {
                     case R.id.user_home:
-                        in = new Intent(getApplicationContext(),UserMainScreen.class);
+                        in = new Intent(getApplicationContext(), MainPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_search:
-                        in = new Intent(getApplicationContext(),UserSearch.class);
+                        in = new Intent(getApplicationContext(), Products.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.user_suggestions:
-                        in = new Intent(getApplicationContext(),UserSuggestions.class);
+                        in = new Intent(getApplicationContext(), SuggestionsPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
                         break;
                     case R.id.admin_users:
-                        in = new Intent(getApplicationContext(),AdminMainScreen.class);
+                        in = new Intent(getApplicationContext(), UsersPage.class);
                         in.putExtra("isAdmin", isAdmin);
                         startActivity(in);
                         overridePendingTransition(0,0);
@@ -184,9 +175,9 @@ public class UserAddProductToMeal extends AppCompatActivity {
     }
 
     void editAmount(String productName, Long oldAmount,Long calories){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserAddProductToMeal.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MealPage.this);
         alertDialog.setMessage("Enter amount");
-        final EditText editMenu = new EditText(UserAddProductToMeal.this);
+        final EditText editMenu = new EditText(MealPage.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT

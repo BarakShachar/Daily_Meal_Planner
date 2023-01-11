@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UserAddProductToMeal">
+    tools:context=".MealPage">
 
 
     <TextView
@@ -17,7 +17,7 @@
         android:layout_marginBottom="50dp"
         android:padding="10dp"
         android:text="Products"
-        android:textSize="40dp"
+        android:textSize="35dp"
         android:textStyle="bold"
         android:textColor="#009688"
         android:gravity="center"
@@ -75,30 +75,33 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20dp"
                         android:layout_marginLeft="10dp"
-                        android:textSize="22dp"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
                         android:text="Name" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="22dp"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
                         android:layout_marginLeft="25dp"
                         android:text="Amount"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="22dp"
+                        android:textSize="20dp"
                         android:layout_marginLeft="25dp"
+                        android:textStyle="bold"
                         android:text="Calories"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="22dp"
+                        android:textSize="20dp"
                         android:layout_marginLeft="25dp"
                         android:text=" "/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="22dp"
+                        android:textSize="20dp"
                         android:layout_marginLeft="25dp"
                         android:text=" "/>
                 </TableRow>
